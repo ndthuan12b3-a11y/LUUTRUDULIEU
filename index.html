@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ứng Dụng Lưu Trữ Hóa Đơn Theo Ngày (Local Storage)</title>
+    <!-- Tải Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Đảm bảo khung nội dung được căn giữa và có kích thước tối đa hợp lý */
+        #app-container {
+            max-width: 800px; 
+            margin: 0 auto;
+            padding: 1rem;
+        }
+        /* Custom scrollbar style for modern look */
+        .modern-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .modern-scroll::-webkit-scrollbar-thumb {
+            background-color: #a7f3d0; /* green-200 */
+            border-radius: 10px;
+        }
+        /* Đảm bảo Modal và Toast luôn nằm trên cùng */
+        .z-50 {
+            z-index: 50;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen p-4 font-sans" onload="initTabs()">
+
+    <!-- Toast Notification Area -->
+    <div id="toastContainer" class="fixed top-5 right-5 z-[100] space-y-2">
+        <!-- Toasts will appear here -->
+    </div>
+    
+    <div id="loadingIndicator" class="fixed inset-0 bg-white bg-opacity-70 z-[101] flex items-center justify-center">
+        <div class="p-4 bg-green-100 rounded-lg shadow-xl flex items-center space-x-3">
+            <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            <p class="text-green-800 font-semibold">Đang tải ứng dụng...</p>
+        </div>
+    </div>
+
+    <div id="app-container" class="bg-white shadow-xl rounded-xl p-6 md:p-8 opacity-0 transition duration-500">
+        
+        <!-- TIÊU ĐỀ CHÍNH -->
+        <h1 class="text-2xl md:text-3xl font-extrabold text-center text-green-700 mb-6 border-b-2 pb-2">DANH SÁCH HÓA ĐƠN MEDX </h1>
+        
+        <!-- START: Uncompleted Overview (Tổng quan) -->
+        <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl shadow-md">
+            <h2 class="text-xl font-bold text-red-700 mb-3 flex items-center border-b pb-2">
+                🔴 HÓA ĐƠN CHƯA HOÀN THÀNH 
+            </h2>
+            <div id="uncompletedOverviewContainer" class="p-2 bg-white rounded-lg border border-gray-100 h-40 overflow-y-auto modern-scroll">
+                <!-- Uncompleted invoices list will be rendered here -->
+                <div class="text-center text-gray-500 py-6">Đang tải danh sách hóa đơn chưa hoàn thành...</div>
+            </div>
+        </div>
+        <!-- END: Uncompleted Overview -->
+        
+        <!-- Tab Headers / Clickable Buttons -->
+        <div class="flex justify-center border-b-2 border-gray-200 mb-4">
+            
+            <!-- Tab 1: NT Tuệ Thiện -->
+            <button id="tabTueThien" onclick="showPharmacy('NT Tuệ Thiện', 'TueThien')" class="py-2 px-4 text-sm font-semibold focus:outline-none transition duration-150 border-transparent hover:bg-gray-100 rounded-t-lg">
+                <h3 class="font-bold text-lg text-green-800 text-center">NHÀ THUỐC TUỆ THIỆN</h3>
+            </button>
+            
+            <!-- Tab 2: NT Hưng Thịnh -->
+            <button id="tabHungThinh" onclick="showPharmacy('NT Hưng Thịnh', 'HungThinh')" class="py-2 px-4 text-sm font-semibold focus:outline-none transition duration-150 border-transparent hover:bg-gray-100 rounded-t-lg">
+                <h3 class="font-bold text-lg text-green-800 text-center">NHÀ THUỐC HƯNG THỊNH</h3>
+            </button>
+        </div>
+
+        <!-- Content Area -->
+        
+        <!-- Nội dung 1: NT Tuệ Thiện (Ẩn mặc định) -->
+        <div id="contentTueThien" class="pharmacy-content hidden p-4 border border-gray-200 rounded-lg bg-green-50/50 shadow-inner relative">
+            
+            <div id="displayTueThien" class="text-sm text-gray-800 bg-white p-3 rounded-md font-sans h-64 overflow-y-auto border border-gray-200 modern-scroll">Chưa tải dữ liệu...</div>
+
+            <!-- Nút "+" để hiển thị form nhập liệu -->
+            <div class="mt-3 pt-3 flex justify-end">
+                <button onclick="toggleInvoiceForm('TueThien')" class="bg-green-600 text-white p-2 rounded-full shadow-lg hover:bg-green-700 transition duration-150 transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Phần nhập liệu (Ẩn mặc định) - Hiển thị như một overlay -->
+            <div id="formTueThien" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center p-4 rounded-lg z-10">
+                <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm border border-green-300">
+                    <h4 id="formTitleTueThien" class="text-lg font-semibold mb-3 text-gray-700">Thêm Hóa Đơn Mới</h4>
+                    
+                    <!-- Hidden field to store Invoice ID for editing -->
+                    <input type="hidden" id="inputTueThienId" value=""> 
+
+                    <input type="text" id="inputTueThienName" placeholder="Nhập tên Hóa đơn" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-3">
+                    <input type="date" id="inputTueThienDate" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-3">
+
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="toggleInvoiceForm('TueThien')" class="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 transition duration-150 text-sm">
+                            Hủy
+                        </button>
+                        <button id="saveButtonTueThien" onclick="saveInvoice('NT Tuệ Thiện', 'inputTueThienName', 'inputTueThienDate', 'inputTueThienId')" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition duration-150 text-sm">
+                            Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Nội dung 2: NT Hưng Thịnh (Ẩn mặc định) -->
+        <div id="contentHungThinh" class="pharmacy-content hidden p-4 border border-gray-200 rounded-lg bg-green-50/50 shadow-inner relative">
+            
+            <div id="displayHungThinh" class="text-sm text-gray-800 bg-white p-3 rounded-md font-sans h-64 overflow-y-auto border border-gray-200 modern-scroll">Chưa tải dữ liệu...</div>
+
+            <!-- Nút "+" để hiển thị form nhập liệu -->
+            <div class="mt-3 pt-3 flex justify-end">
+                <button onclick="toggleInvoiceForm('HungThinh')" class="bg-green-600 text-white p-2 rounded-full shadow-lg hover:bg-green-700 transition duration-150 transform hover:scale-105">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Phần nhập liệu (Ẩn mặc định) - Hiển thị như một overlay -->
+            <div id="formHungThinh" class="hidden absolute inset-0 bg-white/90 backdrop-blur-sm flex items-center justify-center p-4 rounded-lg z-10">
+                <div class="bg-white p-6 rounded-xl shadow-2xl w-full max-w-sm border border-green-300">
+                     <h4 id="formTitleHungThinh" class="text-lg font-semibold mb-3 text-gray-700">Thêm Hóa Đơn Mới</h4>
+                    
+                    <!-- Hidden field to store Invoice ID for editing -->
+                    <input type="hidden" id="inputHungThinhId" value=""> 
+
+                    <input type="text" id="inputHungThinhName" placeholder="Nhập tên Hóa đơn" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-3">
+                    <input type="date" id="inputHungThinhDate" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm mb-3">
+                    
+                    <div class="flex justify-end space-x-2">
+                        <button onclick="toggleInvoiceForm('HungThinh')" class="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 transition duration-150 text-sm">
+                            Hủy
+                        </button>
+                        <button id="saveButtonHungThinh" onclick="saveInvoice('NT Hưng Thịnh', 'inputHungThinhName', 'inputHungThinhDate', 'inputHungThinhId')" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-md hover:bg-green-700 transition duration-150 text-sm">
+                            Lưu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- START: MODAL XÁC NHẬN XÓA (THAY THẾ CONFIRM()) -->
+    <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full">
+            <h3 class="text-xl font-bold text-red-600 mb-3">Xác nhận Xóa Hóa Đơn</h3>
+            <p class="text-gray-700 mb-4" id="deleteConfirmMessage">Bạn có chắc chắn muốn xóa hóa đơn này không?</p>
+            <div class="flex justify-end space-x-3">
+                <button onclick="hideDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-md hover:bg-gray-400 text-sm">
+                    Hủy
+                </button>
+                <button onclick="performDelete()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-md hover:bg-red-700 text-sm">
+                    Xóa Vĩnh Viễn
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END: MODAL XÁC NHẬN XÓA -->
+
+
+    <script>
+        // --- GLOBAL DEFINITIONS ---
+        const PHARMACY_MAP = {
+            'NT Tuệ Thiện': 'TueThien',
+            'NT Hưng Thịnh': 'HungThinh'
+        };
+        // 24 giờ tính bằng milliseconds
+        const ONE_DAY_MS = 24 * 60 * 60 * 1000; 
+        
+        // Mục tiêu xóa hiện tại
+        let currentDeleteTarget = { pharmacyName: null, invoiceId: null };
+        
+        // Cache dữ liệu cục bộ để dễ dàng chỉnh sửa/kiểm tra
+        let currentInvoiceLists = {}; 
+        
+        // --- LOCAL STORAGE UTILITIES ---
+
+        /**
+         * Lấy key localStorage cho một Nhà thuốc cụ thể.
+         */
+        function getLocalStorageKey(pharmacyName) {
+            // Sử dụng một tiền tố cố định cho ứng dụng này
+            return `MEDX_INVOICES_${pharmacyName}`;
+        }
+
+        /**
+         * Tải danh sách hóa đơn từ localStorage.
+         */
+        function loadInvoices(pharmacyName) {
+            const key = getLocalStorageKey(pharmacyName);
+            try {
+                const data = localStorage.getItem(key);
+                const list = data ? JSON.parse(data) : [];
+                // Đảm bảo ID là string và timestamp là number
+                return list.map(item => ({
+                    ...item,
+                    id: item.id ? item.id.toString() : Date.now().toString(), // Gán ID mới nếu thiếu
+                    readyForDeletionTimestamp: typeof item.readyForDeletionTimestamp === 'number' ? item.readyForDeletionTimestamp : undefined 
+                }));
+            } catch (e) {
+                console.error("Lỗi khi tải hoặc phân tích dữ liệu từ localStorage:", e);
+                return [];
+            }
+        }
+
+        /**
+         * Lưu toàn bộ danh sách hóa đơn trở lại localStorage.
+         * Sau khi lưu, tự động kích hoạt quá trình render UI.
+         */
+        function saveAllInvoices(pharmacyName, list) {
+            const key = getLocalStorageKey(pharmacyName);
+            try {
+                localStorage.setItem(key, JSON.stringify(list));
+                // Kích hoạt lại quá trình tải và render để cập nhật UI ngay lập tức
+                startLocalListeners(); 
+                return true;
+            } catch (e) {
+                console.error("Lỗi khi lưu dữ liệu vào localStorage:", e);
+                showToast('Lỗi khi lưu dữ liệu cục bộ.', 'error');
+                return false;
+            }
+        }
+
+        // --- UTILITY FUNCTIONS START HERE ---
+
+        /**
+         * Lấy ngày hiện tại ở định dạng YYYY-MM-DD.
+         */
+        function getCurrentDateKey() {
+            const d = new Date();
+            let month = '' + (d.getMonth() + 1);
+            let day = '' + d.getDate();
+            let year = d.getFullYear();
+
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+
+            return [year, month, day].join('-');
+        }
+
+        /**
+         * Định dạng lại ngày từ YYYY-MM-DD sang DD/MM/YYYY để hiển thị.
+         */
+        function formatDate(dateKey) {
+            if (!dateKey) return 'Không rõ ngày';
+            const parts = dateKey.split('-');
+            if (parts.length === 3) {
+                return `${parts[2]}/${parts[1]}/${parts[0]}`;
+            }
+            return dateKey;
+        }
+
+        /**
+         * Hàm hiển thị thông báo Toast.
+         */
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const id = Date.now();
+            let bgColor, icon;
+
+            switch (type) {
+                case 'error':
+                    bgColor = 'bg-red-600';
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    break;
+                case 'info':
+                    bgColor = 'bg-blue-600';
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    break;
+                case 'success':
+                default:
+                    bgColor = 'bg-green-600';
+                    icon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`;
+                    break;
+            }
+
+            const toastHtml = `
+                <div id="toast-${id}" class="flex items-center ${bgColor} text-white text-sm font-bold px-4 py-3 rounded-lg shadow-lg opacity-0 transform translate-x-full transition-all duration-300">
+                    ${icon}
+                    <p class="ml-3">${message}</p>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', toastHtml);
+
+            const toastElement = document.getElementById(`toast-${id}`);
+            
+            // Animate in
+            setTimeout(() => {
+                toastElement.style.transform = 'translateX(0)';
+                toastElement.style.opacity = '1';
+            }, 10);
+
+            // Animate out and remove after 3 seconds
+            setTimeout(() => {
+                toastElement.style.transform = 'translateX(150%)';
+                toastElement.style.opacity = '0';
+                setTimeout(() => {
+                    toastElement.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        /**
+         * Ẩn/Hiện form nhập hóa đơn mới (form overlay) và reset trạng thái form.
+         */
+        function toggleInvoiceForm(key) {
+            const formElement = document.getElementById(`form${key}`);
+            const nameInput = document.getElementById(`input${key}Name`);
+            const dateInput = document.getElementById(`input${key}Date`);
+            const idInput = document.getElementById(`input${key}Id`);
+            const formTitle = document.getElementById(`formTitle${key}`);
+            const saveButton = document.getElementById(`saveButton${key}`);
+
+            if (formElement.classList.contains('hidden')) {
+                formElement.classList.remove('hidden');
+                
+                // Reset form state to "Add New"
+                nameInput.value = '';
+                dateInput.value = getCurrentDateKey(); 
+                idInput.value = '';
+                
+                formTitle.textContent = 'Thêm Hóa Đơn Mới';
+                saveButton.textContent = 'Lưu';
+                saveButton.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                saveButton.classList.add('bg-green-600', 'hover:bg-green-700');
+                
+                setTimeout(() => {
+                    nameInput.focus();
+                }, 50);
+            } else {
+                formElement.classList.add('hidden');
+                nameInput.value = ''; 
+                dateInput.value = ''; 
+                idInput.value = '';
+                nameInput.classList.remove('border-red-500', 'ring-red-500', 'border-orange-500', 'ring-orange-500'); 
+            }
+        }
+
+        /**
+         * Logic để bắt đầu chỉnh sửa một hóa đơn.
+         */
+        function startEditInvoice(pharmacyName, invoiceId) {
+            const list = currentInvoiceLists[pharmacyName] || [];
+            const invoiceToEdit = list.find(c => c.id === invoiceId);
+
+            if (!invoiceToEdit) return;
+            
+            const key = PHARMACY_MAP[pharmacyName];
+            const nameInput = document.getElementById(`input${key}Name`);
+            const dateInput = document.getElementById(`input${key}Date`);
+            const idInput = document.getElementById(`input${key}Id`);
+            const formTitle = document.getElementById(`formTitle${key}`);
+            const saveButton = document.getElementById(`saveButton${key}`);
+
+            // 1. Điền dữ liệu vào form
+            nameInput.value = invoiceToEdit.name;
+            dateInput.value = invoiceToEdit.date;
+            idInput.value = invoiceToEdit.id;
+
+            // 2. Cập nhật giao diện form
+            formTitle.textContent = 'Chỉnh Sửa Hóa Đơn';
+            saveButton.textContent = 'Cập Nhật';
+            saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
+            saveButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
+
+            // 3. Hiển thị form
+            const formElement = document.getElementById(`form${key}`);
+            formElement.classList.remove('hidden');
+            setTimeout(() => {
+                nameInput.focus();
+            }, 50);
+        }
+
+        /**
+         * Hiển thị modal xác nhận xóa.
+         */
+        function showDeleteModal(pharmacyName, invoiceId, invoiceName) {
+            currentDeleteTarget = { pharmacyName, invoiceId };
+            document.getElementById('deleteConfirmMessage').innerHTML = `Bạn có chắc chắn muốn xóa hóa đơn **${invoiceName}** khỏi ${pharmacyName} không?`;
+            document.getElementById('deleteConfirmModal').classList.remove('hidden');
+        }
+
+        /**
+         * Thực hiện xóa hóa đơn sau khi xác nhận.
+         */
+        function performDelete() {
+            const { pharmacyName, invoiceId } = currentDeleteTarget;
+            
+            if (!pharmacyName || !invoiceId) {
+                hideDeleteModal();
+                return;
+            }
+
+            let list = loadInvoices(pharmacyName);
+            
+            // Lọc hóa đơn cần xóa
+            const initialLength = list.length;
+            list = list.filter(item => item.id !== invoiceId);
+
+            if (list.length < initialLength) {
+                saveAllInvoices(pharmacyName, list);
+                showToast(`Đã XÓA hóa đơn thành công!`, 'error');
+            } else {
+                showToast(`Lỗi: Không tìm thấy hóa đơn để xóa.`, 'error');
+            }
+            
+            hideDeleteModal();
+        }
+        
+        /**
+         * Ẩn modal xác nhận xóa và reset mục tiêu.
+         */
+        function hideDeleteModal() {
+            document.getElementById('deleteConfirmModal').classList.add('hidden');
+            currentDeleteTarget = { pharmacyName: null, invoiceId: null };
+        }
+
+        /**
+         * Cập nhật trạng thái hoàn thành (completed) cho một hóa đơn cụ thể VÀ kiểm tra xoá nhóm nếu hoàn thành hết.
+         */
+        function toggleCompletion(pharmacyName, invoiceId) {
+            let list = loadInvoices(pharmacyName);
+            const originalCompanyIndex = list.findIndex(c => c.id === invoiceId);
+
+            if (originalCompanyIndex === -1) return;
+
+            const originalCompany = list[originalCompanyIndex];
+            const newCompletedState = !originalCompany.completed;
+            let toastMessage;
+            
+            // 1. Cập nhật trạng thái của hóa đơn
+            list[originalCompanyIndex].completed = newCompletedState;
+
+            // 2. Kiểm tra nhóm ngày và đặt/xóa timestamp xóa
+            const dateKey = originalCompany.date;
+            
+            // Danh sách các công ty trong cùng ngày đó
+            const companiesInDay = list.filter(c => c.date === dateKey);
+            
+            // Kiểm tra trạng thái hoàn thành sau khi cập nhật
+            const allCompletedAfterUpdate = companiesInDay.every(c => c.completed);
+            
+            if (allCompletedAfterUpdate) {
+                // Nếu tất cả đã hoàn thành, ĐÁNH DẤU để xoá sau 24 giờ
+                const deletionTime = Date.now() + ONE_DAY_MS;
+                
+                list = list.map(c => {
+                    if (c.date === dateKey) {
+                        return { ...c, readyForDeletionTimestamp: deletionTime };
+                    }
+                    return c;
+                });
+                toastMessage = `Ngày ${formatDate(dateKey)} đã hoàn thành 100% và được đánh dấu xóa sau 24 giờ.`;
+
+            } else {
+                // Nếu chưa hoàn thành hết, xóa timestamp xóa (nếu có)
+                list = list.map(c => {
+                    if (c.date === dateKey && c.readyForDeletionTimestamp) {
+                        // Loại bỏ timestamp
+                        const { readyForDeletionTimestamp, ...rest } = c;
+                        return rest;
+                    }
+                    return c;
+                });
+                toastMessage = newCompletedState ? `Hóa đơn đã hoàn thành.` : `Hóa đơn "${originalCompany.name}" chưa hoàn thành.`;
+            }
+            
+            // Lưu lại danh sách đã cập nhật
+            saveAllInvoices(pharmacyName, list);
+            showToast(toastMessage, allCompletedAfterUpdate ? 'info' : 'success');
+        }
+
+
+        /**
+         * Lưu (Thêm mới hoặc Cập nhật) một hóa đơn.
+         */
+        function saveInvoice(pharmacyName, inputNameId, inputDateId, inputIdId) {
+            const companyInput = document.getElementById(inputNameId);
+            const dateInput = document.getElementById(inputDateId);
+            const idInput = document.getElementById(inputIdId);
+            
+            const invoiceId = idInput.value.trim(); 
+            const invoiceName = companyInput.value.trim();
+            const dateKey = dateInput.value.trim() || getCurrentDateKey(); 
+
+            let successMessage;
+
+            if (invoiceName === "") {
+                companyInput.classList.add('border-red-500', 'ring-red-500');
+                showToast('Tên hóa đơn không được để trống.', 'error');
+                setTimeout(() => {
+                    companyInput.classList.remove('border-red-500', 'ring-red-500');
+                }, 1000);
+                return;
+            }
+
+            let list = loadInvoices(pharmacyName);
+            
+            // Kiểm tra trùng lặp tên
+            const nameExists = list.some(item => 
+                item.name.toLowerCase() === invoiceName.toLowerCase() && item.id !== invoiceId
+            );
+            
+            if (nameExists) {
+                companyInput.classList.add('border-orange-500', 'ring-orange-500');
+                setTimeout(() => {
+                    companyInput.classList.remove('border-orange-500', 'ring-orange-500');
+                }, 1000);
+                showToast('Tên hóa đơn đã tồn tại.', 'error');
+                return;
+            }
+            
+            // --- CHẾ ĐỘ CẬP NHẬT ---
+            if (invoiceId) {
+                const index = list.findIndex(item => item.id === invoiceId);
+                if (index !== -1) {
+                    list[index].name = invoiceName;
+                    list[index].date = dateKey;
+                    successMessage = `Hóa đơn "${invoiceName}" đã được CẬP NHẬT thành công!`;
+                }
+            } 
+            // --- CHẾ ĐỘ THÊM MỚI ---
+            else {
+                const newInvoice = { 
+                    id: Date.now().toString(), // ID duy nhất
+                    name: invoiceName, 
+                    date: dateKey, 
+                    completed: false, 
+                    createdAt: Date.now()
+                };
+                list.push(newInvoice);
+                successMessage = `Đã THÊM hóa đơn "${invoiceName}" mới.`;
+            }
+            
+            if (saveAllInvoices(pharmacyName, list)) {
+                const key = PHARMACY_MAP[pharmacyName];
+                toggleInvoiceForm(key);
+                showToast(successMessage, invoiceId ? 'info' : 'success');
+            }
+        }
+        
+        /**
+         * Tải dữ liệu từ localStorage, nhóm theo ngày và hiển thị danh sách bằng HTML có cấu trúc.
+         * @param {string} pharmacyName Tên nhà thuốc ('NT Tuệ Thiện' / 'NT Hưng Thịnh')
+         * @param {string} displayElementId ID của thẻ div hiển thị danh sách
+         * @param {Array<Object>} list Danh sách hóa đơn đã được tải và tiền xử lý
+         */
+        function renderPharmacyList(pharmacyName, displayElementId, list) {
+            const displayArea = document.getElementById(displayElementId);
+            
+            // Cập nhật cache local
+            currentInvoiceLists[pharmacyName] = list;
+            
+            // 1. Logic TỰ ĐỘNG DỌN DẸP DỮ LIỆU CŨ
+            const now = Date.now();
+            let hasChanged = false;
+            
+            // Lọc ra những mục đã hết hạn xóa
+            const filteredList = list.filter(c => {
+                if (c.readyForDeletionTimestamp && now > c.readyForDeletionTimestamp) {
+                    hasChanged = true;
+                    return false; // Bỏ qua mục này
+                }
+                return true;
+            });
+
+            // Nếu có mục bị xóa tự động, lưu lại localStorage
+            if (hasChanged) {
+                saveAllInvoices(pharmacyName, filteredList);
+                // Vì saveAllInvoices gọi lại startLocalListeners, chúng ta dừng hàm render này tại đây.
+                return;
+            }
+            
+            if (filteredList.length === 0) {
+                displayArea.innerHTML = `<div class="text-gray-500 text-center py-2">Danh sách hóa đơn rỗng. Hãy nhấn dấu + để thêm hóa đơn mới.</div>`;
+                return;
+            }
+            
+            // 1. Nhóm các hóa đơn theo ngày
+            const groupedByDate = filteredList.reduce((acc, entry) => {
+                const date = entry.date || 'Không rõ ngày';
+                if (!acc[date]) {
+                    acc[date] = [];
+                }
+                acc[date].push(entry); 
+                return acc;
+            }, {});
+
+            let html = `<div class="p-2 text-sm font-bold text-gray-700 border-b border-gray-200 mb-4">
+                            Tổng cộng: ${filteredList.length} Hóa đơn
+                        </div>`;
+            
+            // 2. Sắp xếp các ngày theo thứ tự giảm dần (ngày mới nhất trước)
+            const sortedDates = Object.keys(groupedByDate).sort().reverse(); 
+
+            // 3. Hiển thị dữ liệu đã nhóm dưới dạng HTML
+            sortedDates.forEach(dateKey => {
+                const companiesOnDate = groupedByDate[dateKey];
+                const formattedDate = formatDate(dateKey); // DD/MM/YYYY
+                
+                const isDeletionPending = companiesOnDate[0].readyForDeletionTimestamp ? true : false;
+                
+                let groupStatusText = '';
+                if (isDeletionPending) {
+                    const timeToDeletion = companiesOnDate[0].readyForDeletionTimestamp - Date.now();
+                    const hoursLeft = Math.ceil(timeToDeletion / (60 * 60 * 1000));
+                    groupStatusText = `<span class="ml-2 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full">🗑️ Sẽ xóa sau khoảng ${hoursLeft} giờ</span>`;
+                }
+
+
+                // Header nhóm ngày hiện đại
+                html += `<div class="mt-4 border-l-4 border-green-600 pl-3 py-1 bg-green-50/70 rounded-r-lg shadow-sm flex justify-between items-center">
+                             <h4 class="font-bold text-base text-gray-800">📅 NGÀY ${formattedDate} (${companiesOnDate.length} hóa đơn)</h4>
+                             ${groupStatusText}
+                         </div>
+                         <ul class="space-y-1 mt-2 mb-4 border border-gray-100 p-2 rounded-lg">`;
+                
+                // Danh sách hóa đơn
+                companiesOnDate.forEach((company) => {
+                    const isCompleted = company.completed;
+                    const invoiceId = company.id;
+                    
+                    // Icon hiển thị trạng thái hoàn thành
+                    const completionIcon = isCompleted 
+                        ? `<svg class="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>` 
+                        : `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+                    
+                    // Logic: chỉ áp dụng opacity-60 và text-gray-500 cho mục CHƯA hoàn thành
+                    html += `<li id="company-${invoiceId}" class="flex items-center p-2 rounded-md shadow-xs border border-gray-100 transition duration-100 ${!isCompleted ? 'opacity-60 bg-gray-50' : 'bg-white hover:bg-gray-50'}">
+                                
+                                <!-- Nút Tích Hoàn Thành -->
+                                <button onclick="toggleCompletion('${pharmacyName}', '${invoiceId}')" 
+                                        class="p-1 mr-2 rounded-full transition duration-150 transform hover:scale-110 ${isCompleted ? 'bg-green-100' : 'bg-gray-100'}">
+                                    ${completionIcon}
+                                </button>
+                                
+                                <!-- Tên Hóa Đơn (Icon Tài liệu) -->
+                                <span class="flex-grow text-gray-700 ${!isCompleted ? 'text-gray-500' : ''}">
+                                    📄 ${company.name}
+                                </span>
+
+                                <!-- Nút Chỉnh Sửa và Xóa -->
+                                <div class="flex space-x-2 ml-4">
+                                    <button onclick="startEditInvoice('${pharmacyName}', '${invoiceId}')" 
+                                            title="Chỉnh sửa Hóa đơn"
+                                            class="text-blue-500 hover:text-blue-700 p-1 rounded-full hover:bg-blue-50 transition duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button onclick="showDeleteModal('${pharmacyName}', '${invoiceId}', '${company.name}')"
+                                            title="Xóa Hóa đơn" 
+                                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" />
+                                        </svg>
+                                    </button>
+                                </div>
+                             </li>`;
+                });
+                html += `</ul>`;
+            });
+
+            displayArea.innerHTML = html;
+        }
+        
+        /**
+         * Hàm hiển thị danh sách tất cả các hóa đơn chưa hoàn thành từ cả hai nhà thuốc (Tổng quan).
+         */
+        function renderUncompletedOverview() {
+            const container = document.getElementById('uncompletedOverviewContainer');
+            let allUncompleted = [];
+            
+            // 1. Thu thập tất cả hóa đơn chưa hoàn thành từ cache
+            Object.keys(PHARMACY_MAP).forEach(pharmacyName => {
+                const list = currentInvoiceLists[pharmacyName] || [];
+                // Lọc những mục chưa hoàn thành VÀ chưa sẵn sàng xóa
+                const uncompleted = list.filter(item => !item.completed && !item.readyForDeletionTimestamp);
+                uncompleted.forEach(item => {
+                    allUncompleted.push({
+                        ...item,
+                        pharmacy: pharmacyName // Thêm thông tin Nhà thuốc
+                    });
+                });
+            });
+
+            if (allUncompleted.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-500 py-6">🎉 Tuyệt vời! Không có hóa đơn nào cần xử lý.</div>`;
+                return;
+            }
+
+            // 2. Sắp xếp danh sách (theo ngày cũ nhất trước)
+            allUncompleted.sort((a, b) => {
+                if (a.date < b.date) return -1;
+                if (a.date > b.date) return 1;
+                return 0;
+            });
+
+            // 3. Render danh sách tổng hợp
+            let html = `<ul class="space-y-1">`;
+            const now = Date.now();
+            allUncompleted.forEach(invoice => {
+                // Đảm bảo invoice.date có thể chuyển thành Date object
+                const invoiceDate = new Date(invoice.date + 'T00:00:00'); 
+                if (isNaN(invoiceDate)) return; // Bỏ qua nếu ngày không hợp lệ
+
+                const dateDiffMs = now - invoiceDate.getTime();
+                const daysOld = Math.floor(dateDiffMs / ONE_DAY_MS);
+                
+                let statusClass = 'text-gray-700';
+                let statusEmoji = '⚠️';
+                
+                // Cảnh báo hóa đơn đã cũ
+                if (daysOld >= 3) {
+                    statusClass = 'text-red-600 font-semibold';
+                    statusEmoji = '🚨'; // Cảnh báo ưu tiên cao (3 ngày tuổi)
+                } else if (daysOld >= 1) {
+                    statusClass = 'text-orange-500 font-semibold';
+                    statusEmoji = '🟠'; // Cảnh báo trung bình (1-2 ngày tuổi)
+                }
+
+                html += `
+                    <li class="p-2 border-b border-gray-100 flex justify-between items-center bg-white hover:bg-red-50 transition duration-100 rounded-md shadow-xs">
+                        <span class="${statusClass} text-sm flex items-center">
+                            ${statusEmoji} 
+                            <span class="ml-2">${invoice.name}</span>
+                        </span>
+                        <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
+                            ${invoice.pharmacy} | Ngày: ${formatDate(invoice.date)}
+                        </span>
+                    </li>
+                `;
+            });
+            html += `</ul>`;
+            
+            container.innerHTML = html;
+        }
+
+        /**
+         * Hàm hiển thị nội dung của nhà thuốc được chọn và cập nhật trạng thái tab.
+         */
+        function showPharmacy(pharmacyName, key) {
+            const tabElement = document.getElementById(`tab${key}`);
+            const isAlreadyActive = tabElement.classList.contains('border-green-500');
+            
+            // 1. Ẩn tất cả nội dung và đặt lại style cho tất cả tabs
+            const allKeys = Object.values(PHARMACY_MAP);
+            allKeys.forEach(k => {
+                document.getElementById(`content${k}`)?.classList.add('hidden');
+                document.getElementById(`form${k}`)?.classList.add('hidden');
+                const t = document.getElementById(`tab${k}`);
+                if(t) {
+                    t.classList.remove('bg-white', 'border-green-500', 'border-b-2');
+                    t.classList.add('text-gray-600', 'hover:bg-gray-100', 'border-transparent');
+                    t.style.marginBottom = '0';
+                }
+            });
+
+            // 2. Chỉ hiển thị nếu nó CHƯA active 
+            if (!isAlreadyActive) {
+                const contentElement = document.getElementById(`content${key}`);
+
+                // HIỂN THỊ nội dung và làm ACTIVE tab
+                contentElement.classList.remove('hidden');
+                tabElement.classList.add('bg-white', 'border-green-500', 'border-b-2');
+                tabElement.classList.remove('text-gray-600', 'hover:bg-gray-100', 'border-transparent');
+                tabElement.style.marginBottom = '-2px';
+            }
+        }
+        
+        /**
+         * Bắt đầu tải dữ liệu cục bộ khi ứng dụng khởi động hoặc sau khi lưu.
+         */
+        function startLocalListeners() {
+            // Loại bỏ chỉ báo tải và hiển thị nội dung chính
+            document.getElementById('loadingIndicator').classList.add('hidden');
+            document.getElementById('app-container').classList.remove('opacity-0');
+
+            const pharmacies = Object.keys(PHARMACY_MAP);
+            
+            pharmacies.forEach(pharmacyName => {
+                const list = loadInvoices(pharmacyName);
+                const key = PHARMACY_MAP[pharmacyName];
+                // Render danh sách của từng nhà thuốc
+                renderPharmacyList(pharmacyName, `display${key}`, list);
+            });
+            
+            // Render Tổng quan Hóa đơn chưa hoàn thành
+            renderUncompletedOverview();
+        }
+
+
+        /**
+         * Hàm khởi tạo chạy khi load trang.
+         */
+        async function initTabs() {
+            startLocalListeners();
+        }
+    </script>
+
+</body>
+</html>
