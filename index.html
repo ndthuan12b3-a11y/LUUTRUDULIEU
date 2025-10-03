@@ -44,7 +44,7 @@
     <div id="app-container" class="bg-white shadow-xl rounded-xl p-6 md:p-8 opacity-0 transition duration-500">
         
         <!-- TIÊU ĐỀ CHÍNH -->
-        <h1 class="text-2xl md:text-3xl font-extrabold text-center text-green-700 mb-6 border-b-2 pb-2">DANH SÁCH HÓA ĐƠN MEDX </h1>
+        <h1 class="2xl:text-3xl md:text-3xl font-extrabold text-center text-green-700 mb-6 border-b-2 pb-2">DANH SÁCH HÓA ĐƠN MEDX </h1>
         
         <!-- START: Uncompleted Overview (Tổng quan) -->
         <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-xl shadow-md">
@@ -710,6 +710,10 @@
             // 3. Render danh sách tổng hợp
             let html = `<ul class="space-y-1">`;
             const now = Date.now();
+            
+            // Icon cho trạng thái chưa hoàn thành
+            const uncompletedIcon = `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
+
             allUncompleted.forEach(invoice => {
                 // Đảm bảo invoice.date có thể chuyển thành Date object
                 const invoiceDate = new Date(invoice.date + 'T00:00:00'); 
@@ -732,13 +736,24 @@
 
                 html += `
                     <li class="p-2 border-b border-gray-100 flex justify-between items-center bg-white hover:bg-red-50 transition duration-100 rounded-md shadow-xs">
-                        <span class="${statusClass} text-sm flex items-center">
-                            ${statusEmoji} 
-                            <span class="ml-2">${invoice.name}</span>
-                        </span>
-                        <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap">
-                            ${invoice.pharmacy} | Ngày: ${formatDate(invoice.date)}
-                        </span>
+                        
+                        <!-- Nút Tích Hoàn Thành PHỤ -->
+                        <button onclick="toggleCompletion('${invoice.pharmacy}', '${invoice.id}')" 
+                                title="Đánh dấu đã hoàn thành"
+                                class="p-1 mr-3 rounded-full transition duration-150 transform hover:scale-110 bg-gray-100 flex-shrink-0">
+                            ${uncompletedIcon}
+                        </button>
+                        
+                        <!-- Invoice Details -->
+                        <div class="flex-grow flex justify-between items-center">
+                            <span class="${statusClass} text-sm flex items-center">
+                                ${statusEmoji} 
+                                <span class="ml-2">${invoice.name}</span>
+                            </span>
+                            <span class="text-xs text-gray-500 font-medium bg-gray-100 px-2 py-1 rounded-full whitespace-nowrap flex-shrink-0">
+                                ${invoice.pharmacy} | Ngày: ${formatDate(invoice.date)}
+                            </span>
+                        </div>
                     </li>
                 `;
             });
