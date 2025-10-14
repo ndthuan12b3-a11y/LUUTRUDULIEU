@@ -8,11 +8,11 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <style>
-        /* Modern & Refined Design */
         #app-container { max-width: 900px; margin: 0 auto; padding: 1rem; border-radius: 1.5rem; background-color: #ffffff; }
         .modern-scroll::-webkit-scrollbar { width: 8px; }
         .modern-scroll::-webkit-scrollbar-thumb { background-color: #34d399; border-radius: 10px; }
         .sticky-plus { position: absolute; bottom: 20px; right: 20px; z-index: 20; }
+        .recycle-bin-btn { position: fixed; bottom: 20px; right: 20px; z-index: 30; }
         @media (max-width: 640px) { #app-container { padding: 0.5rem; } h1 { font-size: 1.75rem !important; } }
         .filter-active { background-color: #059669 !important; color: white !important; box-shadow: 0 2px 4px 0 rgba(0,0,0,0.1); }
         .invoice-item { border: none; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.5rem; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05); }
@@ -20,7 +20,7 @@
         .pharmacy-content { border: 1px solid #e5e7eb; border-radius: 0.75rem; padding: 1rem; }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen p-2 font-sans" onload="initApp()">
+<body class="bg-gray-100 min-h-screen p-2 font-sans">
     <div id="toastContainer" class="fixed top-2 right-2 z-[100] space-y-2"></div>
     
     <div id="loadingIndicator" class="fixed inset-0 bg-white bg-opacity-70 z-[101] flex items-center justify-center">
@@ -54,7 +54,7 @@
         <div id="contentTueThien" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
             <div class="mb-4">
                 <input type="text" id="searchTueThien" oninput="debounceSearch('NT Tuệ Thiện', 'TueThien', this.value)"
-                       placeholder="🔍 Tìm kiếm hóa đơn theo tên..."
+                       placeholder="🔍 Tìm kiếm hóa đơn theo tên hoặc ngày..."
                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm shadow-sm">
             </div>
             <div class="flex space-x-2 mb-4">
@@ -88,13 +88,13 @@
         <div id="contentHungThinh" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
             <div class="mb-4">
                 <input type="text" id="searchHungThinh" oninput="debounceSearch('NT Hưng Thịnh', 'HungThinh', this.value)"
-                       placeholder="🔍 Tìm kiếm hóa đơn theo tên..."
+                       placeholder="🔍 Tìm kiếm hóa đơn theo tên hoặc ngày..."
                        class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 text-sm shadow-sm">
             </div>
             <div class="flex space-x-2 mb-4">
                 <button onclick="filterAndLoadInvoices('NT Hưng Thịnh', 'all')" id="filterHungThinhAll" class="px-4 py-1.5 text-xs font-semibold rounded-full filter-active">Tất cả (Gần nhất)</button>
                 <button onclick="filterAndLoadInvoices('NT Hưng Thịnh', 'uncompleted')" id="filterHungThinhUncompleted" class="px-4 py-1.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300">Chưa xong</button>
-                <button onclick="filterAndLoadInvoices('NT Hưng Thịnh', 'completed')" id="filterHungThinhCompleted" class="px-4 py-1.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300">Đã xong</button>
+                <button onclick="filterAndLoadInvoices('NT Hưng Thịnh', 'completed')" id="filterHungThienCompleted" class="px-4 py-1.5 text-xs font-semibold rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300">Đã xong</button>
             </div>
             <div id="displayHungThinh" class="text-sm text-gray-800 bg-white p-3 rounded-xl font-sans h-64 md:h-80 overflow-y-auto border border-gray-200 modern-scroll shadow-inner">Chưa tải dữ liệu...</div>
             <div class="mt-4 pt-3 flex justify-end sticky-plus">
@@ -118,20 +118,44 @@
                 </div>
             </div>
         </div>
-    </div>
-    
-    <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full mx-auto border border-red-300">
-            <h3 class="text-xl font-bold text-red-700 mb-3 border-b pb-2">Xác nhận Xóa Hóa Đơn</h3>
-            <p class="text-gray-700 text-sm mb-4" id="deleteConfirmMessage">Bạn có chắc chắn muốn xóa hóa đơn này không?</p>
-            <div class="flex justify-end space-x-3">
-                <button onclick="hideDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition duration-150 text-sm">Hủy</button>
-                <button onclick="performDelete()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150 text-sm">Xóa Vĩnh Viễn</button>
+        
+        <button id="recycleBinButton" onclick="toggleRecycleBinModal()" class="recycle-bin-btn bg-red-600 text-white p-3 rounded-full shadow-xl hover:bg-red-700 transition duration-150 transform hover:scale-105">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" />
+            </svg>
+        </button>
+        
+        <div id="recycleBinModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-auto border border-red-300">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-red-700">🗑️ THÙNG RÁC</h3>
+                    <button onclick="toggleRecycleBinModal()" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+                <div class="mb-4">
+                    <input type="text" id="searchRecycleBin" oninput="debounceSearch('RecycleBin', 'RecycleBin', this.value)"
+                           placeholder="🔍 Tìm kiếm hóa đơn đã xóa theo tên hoặc ngày..."
+                           class="w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 text-sm shadow-sm">
+                </div>
+                <div id="displayRecycleBin" class="text-sm text-gray-800 bg-white p-3 rounded-xl font-sans h-64 md:h-80 overflow-y-auto border border-gray-200 modern-scroll shadow-inner">Chưa tải dữ liệu...</div>
             </div>
         </div>
-    </div>
-    
-    <footer class="mt-8 mb-2 text-center text-gray-500 text-xs font-medium">NĐT</footer>
+        
+        <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full mx-auto border border-red-300">
+                <h3 class="text-xl font-bold text-red-700 mb-3 border-b pb-2">Xác nhận Xóa Hóa Đơn</h3>
+                <p class="text-gray-700 text-sm mb-4" id="deleteConfirmMessage">Bạn có chắc chắn muốn xóa hóa đơn này không?</p>
+                <div class="flex justify-end space-x-3">
+                    <button onclick="hideDeleteModal()" class="px-4 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition duration-150 text-sm">Hủy</button>
+                    <button onclick="performDelete()" class="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-150 text-sm">Xóa Vĩnh Viễn</button>
+                </div>
+            </div>
+        </div>
+        
+        <footer class="mt-8 mb-2 text-center text-gray-500 text-xs font-medium">NĐT</footer>
 
     <script>
         // =========================================================================
@@ -151,14 +175,14 @@
         const db = firebase.firestore();
         const COLLECTION_NAME = 'medx_invoices';
 
-        const PHARMACY_MAP = { 'NT Tuệ Thiện': 'TueThien', 'NT Hưng Thịnh': 'HungThinh' };
+        const PHARMACY_MAP = { 'NT Tuệ Thiện': 'TueThien', 'NT Hưng Thịnh': 'HungThinh', 'RecycleBin': 'RecycleBin' };
         const ONE_DAY_MS = 24 * 60 * 60 * 1000;
-        const THREE_DAYS_MS = 3 * ONE_DAY_MS; // Đã thay đổi: Logic tự động xóa sau 3 ngày
+        const THREE_DAYS_MS = 3 * ONE_DAY_MS;
         const INVOICES_PER_PAGE = 20;
 
-        let currentDeleteTarget = { pharmacyName: null, invoiceId: null };
+        let currentDeleteTarget = { pharmacyName: null, invoiceId: null, isPermanent: false };
         let currentInvoiceLists = {};
-        let currentFilter = { 'NT Tuệ Thiện': 'all', 'NT Hưng Thịnh': 'all' };
+        let currentFilter = { 'NT Tuệ Thiện': 'all', 'NT Hưng Thịnh': 'all', 'RecycleBin': 'all' };
         let unsubscribeListeners = {};
         let searchTimeout;
 
@@ -238,7 +262,6 @@
         // 🟢 CÁC HÀM XỬ LÝ UI VÀ LOGIC NGHIỆP VỤ
         // =========================================================================
         
-        // Cập nhật trạng thái nút lọc
         function updateFilterButtons(pharmacyKey, activeFilter) {
             const filters = ['All', 'Uncompleted', 'Completed'];
             filters.forEach(f => {
@@ -254,7 +277,6 @@
             });
         }
         
-        // Mở/Đóng form
         function toggleInvoiceForm(key, reset = true) {
             const formElement = document.getElementById(`form${key}`);
             const nameInput = document.getElementById(`input${key}Name`);
@@ -279,11 +301,10 @@
                 setTimeout(() => { nameInput.focus(); }, 50);
             } else {
                 formElement.classList.add('hidden');
-                nameInput.classList.remove('border-red-500', 'ring-red-500', 'border-orange-500', 'ring-orange-500');
+                nameInput.classList.remove('border-red-500', 'ring-red-500');
             }
         }
 
-        // Chuyển sang chế độ chỉnh sửa
         function startEditInvoice(pharmacyName, invoiceId) {
             const list = currentInvoiceLists[pharmacyName] || [];
             const invoiceToEdit = list.find(c => c.id === invoiceId);
@@ -304,40 +325,72 @@
             toggleInvoiceForm(key, false);
         }
 
-        // Hiện modal xác nhận xóa
-        function showDeleteModal(pharmacyName, invoiceId, invoiceName) {
-            currentDeleteTarget = { pharmacyName, invoiceId };
-            document.getElementById('deleteConfirmMessage').innerHTML = `Bạn có chắc chắn muốn **xóa vĩnh viễn** hóa đơn **${invoiceName}** khỏi ${pharmacyName} không?`;
+        function showDeleteModal(pharmacyName, invoiceId, invoiceName, isPermanent = false) {
+            currentDeleteTarget = { pharmacyName, invoiceId, isPermanent };
+            const action = isPermanent ? 'xóa vĩnh viễn' : 'xóa';
+            document.getElementById('deleteConfirmMessage').innerHTML = `Bạn có chắc chắn muốn **${action}** hóa đơn **${invoiceName}**${isPermanent ? '' : ` khỏi ${pharmacyName}`} không?`;
             document.getElementById('deleteConfirmModal').classList.remove('hidden');
         }
 
         function hideDeleteModal() {
             document.getElementById('deleteConfirmModal').classList.add('hidden');
-            currentDeleteTarget = { pharmacyName: null, invoiceId: null };
+            currentDeleteTarget = { pharmacyName: null, invoiceId: null, isPermanent: false };
+        }
+
+        function toggleRecycleBinModal() {
+            const modal = document.getElementById('recycleBinModal');
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                loadRecycleBin();
+            } else {
+                modal.classList.add('hidden');
+                if (unsubscribeListeners['RecycleBin']) {
+                    unsubscribeListeners['RecycleBin']();
+                }
+            }
         }
 
         // =========================================================================
         // 🚀 FIREBASE ACTIONS
         // =========================================================================
         
-        // Xóa vĩnh viễn
         async function performDelete() {
-            const { pharmacyName, invoiceId } = currentDeleteTarget;
+            const { pharmacyName, invoiceId, isPermanent } = currentDeleteTarget;
             if (!pharmacyName || !invoiceId) {
                 hideDeleteModal();
                 return;
             }
             try {
-                await db.collection(COLLECTION_NAME).doc(invoiceId).delete();
-                showToast(`Đã XÓA hóa đơn thành công!`, 'error');
+                if (isPermanent) {
+                    await db.collection(COLLECTION_NAME).doc(invoiceId).delete();
+                    showToast(`Đã XÓA VĨNH VIỄN hóa đơn thành công!`, 'error');
+                } else {
+                    await db.collection(COLLECTION_NAME).doc(invoiceId).update({
+                        isDeleted: true,
+                        deletedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    showToast(`Đã chuyển hóa đơn vào thùng rác!`, 'info');
+                }
             } catch (e) {
-                console.error("Lỗi xóa Firestore:", e);
-                showToast(`Lỗi: Không thể xóa hóa đơn.`, 'error');
+                console.error(`Lỗi ${isPermanent ? 'xóa vĩnh viễn' : 'chuyển vào thùng rác'} Firestore:`, e);
+                showToast(`Lỗi: Không thể ${isPermanent ? 'xóa vĩnh viễn' : 'chuyển vào thùng rác'} hóa đơn.`, 'error');
             }
             hideDeleteModal();
         }
 
-        // Hủy bỏ trạng thái tự động xóa
+        async function restoreInvoice(invoiceId, invoiceName) {
+            try {
+                await db.collection(COLLECTION_NAME).doc(invoiceId).update({
+                    isDeleted: false,
+                    deletedAt: firebase.firestore.FieldValue.delete()
+                });
+                showToast(`Đã KHÔI PHỤC hóa đơn "${invoiceName}" thành công!`, 'success');
+            } catch (e) {
+                console.error("Lỗi khôi phục Firestore:", e);
+                showToast(`Lỗi: Không thể khôi phục hóa đơn.`, 'error');
+            }
+        }
+
         async function cancelGroupDeletion(pharmacyName, dateKey) {
             let list = currentInvoiceLists[pharmacyName] || [];
             const companiesInDay = list.filter(c => c.date === dateKey && c.readyForDeletionTimestamp);
@@ -358,7 +411,6 @@
             }
         }
 
-        // Chuyển đổi trạng thái hoàn thành và áp dụng logic tự động xóa 3 ngày
         async function toggleCompletion(pharmacyName, invoiceId) {
             let list = currentInvoiceLists[pharmacyName] || [];
             const originalCompany = list.find(c => c.id === invoiceId);
@@ -380,9 +432,8 @@
             const companiesInDay = currentList.filter(c => c.date === dateKey);
             const allCompletedAfterUpdate = companiesInDay.every(c => c.completed);
             
-            // Logic tự động xóa sau 3 ngày
             if (allCompletedAfterUpdate && newCompletedState) {
-                const deletionTime = Date.now() + THREE_DAYS_MS; // <-- SỬ DỤNG HẰNG SỐ 3 NGÀY
+                const deletionTime = Date.now() + THREE_DAYS_MS;
                 const batch = db.batch();
                 
                 companiesInDay.forEach(c => {
@@ -399,7 +450,6 @@
                     showToast('Lỗi cập nhật nhóm xóa Firestore.', 'error');
                 }
             } else if (!newCompletedState) {
-                // Hủy bỏ xóa tự động nếu bị hoàn tác
                 const batch = db.batch();
                 companiesInDay.forEach(c => {
                     if (c.readyForDeletionTimestamp) {
@@ -419,7 +469,6 @@
             showToast(toastMessage, allCompletedAfterUpdate ? 'info' : 'success');
         }
 
-        // Lưu hoặc Cập nhật Hóa đơn
         async function saveInvoice(pharmacyName, inputNameId, inputDateId, inputLinkId, inputIdId) {
             const companyInput = document.getElementById(inputNameId);
             const dateInput = document.getElementById(inputDateId);
@@ -440,18 +489,6 @@
                 return;
             }
 
-            const list = currentInvoiceLists[pharmacyName] || [];
-            const nameExists = list.some(item =>
-                item.name.toLowerCase() === invoiceName.toLowerCase() && item.id !== invoiceId
-            );
-
-            if (nameExists) {
-                companyInput.classList.add('border-orange-500', 'ring-orange-500');
-                setTimeout(() => { companyInput.classList.remove('border-orange-500', 'ring-orange-500'); }, 1000);
-                showToast('Tên hóa đơn đã tồn tại. Vui lòng chọn tên khác.', 'error');
-                return;
-            }
-
             const baseData = { name: invoiceName, date: dateKey, link: invoiceLink };
 
             if (invoiceId) { 
@@ -460,23 +497,23 @@
                     successMessage = `Hóa đơn "${invoiceName}" đã được CẬP NHẬT thành công!`;
                     savedSuccessfully = true;
                 } catch (e) {
-                    console.error(e);
+                    console.error("Lỗi cập nhật Firestore:", e);
                     showToast('Lỗi cập nhật Firestore.', 'error');
                 }
-            }
-            else { 
+            } else { 
                 const newInvoiceData = {
                     ...baseData,
                     pharmacy: pharmacyName,
                     completed: false,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp() // Thêm Timestamp
+                    isDeleted: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 try {
                     await db.collection(COLLECTION_NAME).add(newInvoiceData);
                     successMessage = `Đã THÊM hóa đơn "${invoiceName}" mới.`;
                     savedSuccessfully = true;
                 } catch (e) {
-                    console.error(e);
+                    console.error("Lỗi thêm mới Firestore:", e);
                     showToast('Lỗi thêm mới Firestore.', 'error');
                 }
             }
@@ -488,7 +525,6 @@
             }
         }
 
-        // Lọc và tải hóa đơn theo Real-time Listener
         function filterAndLoadInvoices(pharmacyName, filterType) {
             const pharmacyKey = PHARMACY_MAP[pharmacyName];
             
@@ -502,6 +538,7 @@
 
             let query = db.collection(COLLECTION_NAME)
                 .where('pharmacy', '==', pharmacyName)
+                .where('isDeleted', '==', false)
                 .orderBy('date', 'desc');
 
             if (filterType === 'completed') {
@@ -522,9 +559,7 @@
                 const filteredList = runAutoCleanup(list);
                 renderPharmacyList(pharmacyName, `display${pharmacyKey}`, filteredList);
                 renderUncompletedOverview();
-
             }, error => {
-                // Xử lý lỗi Index Firestore
                 if (error.code === 'failed-precondition' && error.message.includes('index')) {
                     const indexLinkMatch = error.message.match(/https:\/\/[^\s]+/);
                     let errorMessage = `Lỗi lọc dữ liệu. VUI LÒNG TẠO CHỈ MỤC (INDEX) TRONG FIREBASE.`;
@@ -532,14 +567,49 @@
                         errorMessage += ` <a href="${indexLinkMatch[0]}" target="_blank" class="font-bold text-red-100 underline hover:text-white">NHẤP VÀO ĐÂY ĐỂ TẠO INDEX</a>`;
                     }
                     showToast(errorMessage, 'error');
-                    console.error("Lỗi Firestore Index:", error);
+                    console.error("Lỗi Firestore Index:", e);
                     return;
                 }
                 showToast(`Lỗi đồng bộ hóa dữ liệu.`, 'error');
             });
         }
-        
-        // Tìm kiếm cục bộ (tắt listener khi tìm kiếm)
+
+        function loadRecycleBin() {
+            if (unsubscribeListeners['RecycleBin']) {
+                unsubscribeListeners['RecycleBin']();
+            }
+            
+            currentFilter['RecycleBin'] = 'all';
+            document.getElementById('searchRecycleBin').value = '';
+
+            let query = db.collection(COLLECTION_NAME)
+                .where('isDeleted', '==', true)
+                .orderBy('deletedAt', 'desc')
+                .limit(INVOICES_PER_PAGE);
+
+            unsubscribeListeners['RecycleBin'] = query.onSnapshot(snapshot => {
+                const list = [];
+                snapshot.forEach(doc => {
+                    list.push({ id: doc.id, ...doc.data() });
+                });
+                
+                currentInvoiceLists['RecycleBin'] = list;
+                renderRecycleBinList(list);
+            }, error => {
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    const indexLinkMatch = error.message.match(/https:\/\/[^\s]+/);
+                    let errorMessage = `Lỗi lọc dữ liệu thùng rác. VUI LÒNG TẠO CHỈ MỤC (INDEX) TRONG FIREBASE.`;
+                    if (indexLinkMatch && indexLinkMatch[0]) {
+                        errorMessage += ` <a href="${indexLinkMatch[0]}" target="_blank" class="font-bold text-red-100 underline hover:text-white">NHẤP VÀO ĐÂY ĐỂ TẠO INDEX</a>`;
+                    }
+                    showToast(errorMessage, 'error');
+                    console.error("Lỗi Firestore Index:", error);
+                    return;
+                }
+                showToast(`Lỗi đồng bộ hóa dữ liệu thùng rác.`, 'error');
+            });
+        }
+
         function searchInvoices(pharmacyName, key, searchTerm) {
             const list = currentInvoiceLists[pharmacyName] || [];
             const displayElementId = `display${key}`;
@@ -556,30 +626,49 @@
                     formatDate(invoice.date).includes(query)
                 );
             } else {
-                 filterAndLoadInvoices(pharmacyName, currentFilter[pharmacyName]);
-                 return;
+                if (pharmacyName === 'RecycleBin') {
+                    loadRecycleBin();
+                } else {
+                    filterAndLoadInvoices(pharmacyName, currentFilter[pharmacyName]);
+                }
+                return;
             }
             
-            renderPharmacyList(pharmacyName, displayElementId, listToRender, true);
+            if (pharmacyName === 'RecycleBin') {
+                renderRecycleBinList(listToRender, true);
+            } else {
+                renderPharmacyList(pharmacyName, displayElementId, listToRender, true);
+            }
         }
 
-        // Lọc bỏ các hóa đơn đã quá hạn xóa
         function runAutoCleanup(list) {
             const now = Date.now();
+            const batch = db.batch();
+            let hasDeletions = false;
+
             const filteredList = list.filter(c => {
-                if (c.readyForDeletionTimestamp && now > c.readyForDeletionTimestamp) {
-                    return false; 
+                if (c.readyForDeletionTimestamp && now > c.readyForDeletionTimestamp && !c.isDeleted) {
+                    const docRef = db.collection(COLLECTION_NAME).doc(c.id);
+                    batch.update(docRef, {
+                        isDeleted: true,
+                        deletedAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    hasDeletions = true;
+                    return false;
                 }
                 return true;
             });
+
+            if (hasDeletions) {
+                batch.commit().catch(e => {
+                    console.error("Lỗi tự động chuyển vào thùng rác:", e);
+                    showToast('Lỗi tự động chuyển hóa đơn vào thùng rác.', 'error');
+                });
+            }
+
             return filteredList;
         }
 
-        // =========================================================================
-        // 🎨 HÀM RENDER UI
-        // =========================================================================
-        
-        // Render danh sách chính (Theo ngày)
         function renderPharmacyList(pharmacyName, displayElementId, list, isSearchMode = false) {
             const displayArea = document.getElementById(displayElementId);
             const todayKey = getCurrentDateKey();
@@ -611,10 +700,10 @@
                     const daysLeft = Math.ceil(timeToDeletion / ONE_DAY_MS);
                                         
                     groupStatusText = `<span class="ml-2 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full flex items-center">
-                            <span class="mr-2">🗑️ Sẽ xóa sau ${daysLeft} ngày</span>
+                            <span class="mr-2">🗑️ Sẽ chuyển vào thùng rác sau ${daysLeft} ngày</span>
                             <button onclick="cancelGroupDeletion('${pharmacyName}', '${dateKey}')"
                                 class="text-red-700 hover:text-white hover:bg-red-500 rounded-full transition duration-150 px-1 font-bold">
-                                ❌ Hủy Xóa
+                                ❌ Hủy
                             </button>
                         </span>`;
                 }
@@ -667,7 +756,7 @@
                                         </svg>
                                     </button>
                                     <button onclick="showDeleteModal('${pharmacyName}', '${invoiceId}', '${invoiceName}')"
-                                            title="Xóa Hóa đơn"
+                                            title="Chuyển vào Thùng rác"
                                              class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition duration-150">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" />
@@ -681,14 +770,81 @@
             displayArea.innerHTML = html;
         }
 
-        // Render danh sách chưa hoàn thành (Overview)
+        function renderRecycleBinList(list, isSearchMode = false) {
+            const displayArea = document.getElementById('displayRecycleBin');
+                        
+            if (list.length === 0) {
+                displayArea.innerHTML = `<div class="text-gray-500 text-center py-2">${isSearchMode ? 'Không tìm thấy hóa đơn phù hợp trong thùng rác.' : 'Thùng rác trống.'}</div>`;
+                return;
+            }
+
+            const groupedByDate = list.reduce((acc, entry) => {
+                const date = entry.date || 'Không rõ ngày';
+                if (!acc[date]) { acc[date] = []; }
+                acc[date].push(entry);
+                return acc;
+            }, {});
+
+            let html = isSearchMode ? '' : `<div class="p-2 text-sm font-bold text-gray-700 border-b border-gray-200 mb-4">Tổng cộng: ${list.length} Hóa đơn đã xóa</div>`;
+            const sortedDates = Object.keys(groupedByDate).sort().reverse();
+
+            sortedDates.forEach(dateKey => {
+                const companiesOnDate = groupedByDate[dateKey];
+                const formattedDate = formatDate(dateKey);
+
+                html += `<div class="mt-4 border-l-4 border-red-600 pl-3 py-2 bg-red-50/70 rounded-r-lg shadow-sm">
+                             <h4 class="font-bold text-base text-gray-800">📅 NGÀY ${formattedDate}</h4>
+                         </div>
+                         <ul class="space-y-1 mt-2 mb-4">`;
+                                
+                companiesOnDate.forEach((company) => {
+                    const { id: invoiceId, name: invoiceName, link: invoiceLink, deletedAt, pharmacy } = company;
+                    const timeDeleted = deletedAt ? ` (Xóa ${timeAgo(deletedAt)})` : '';
+                    
+                    html += `<li id="company-${invoiceId}" class="invoice-item flex items-center p-3 rounded-lg transition duration-100 bg-white">
+                                <span class="flex-grow text-gray-700 font-semibold flex items-center text-base">
+                                    📄 ${invoiceName} <span class="text-xs text-gray-400 ml-2">${timeDeleted}</span>
+                                    ${invoiceLink ? `
+                                        <a href="${invoiceLink}" target="_blank" rel="noopener noreferrer"
+                                           title="Mở Link Hóa Đơn Đính Kèm"
+                                           class="ml-2 text-blue-500 hover:text-blue-700 transition duration-150 transform hover:scale-110">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-7-5l-5 5m0 0h4m-4 0v4m-1-5l5-5" />
+                                            </svg>
+                                        </a>
+                                    ` : ''}
+                                </span>
+                                <div class="flex space-x-2 ml-4 flex-shrink-0">
+                                    <button onclick="restoreInvoice('${invoiceId}', '${invoiceName}')"
+                                            title="Khôi phục Hóa đơn"
+                                            class="text-green-500 hover:text-green-700 p-1 rounded-full hover:bg-green-50 transition duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                    <button onclick="showDeleteModal('${pharmacy}', '${invoiceId}', '${invoiceName}', true)"
+                                            title="Xóa Vĩnh viễn"
+                                            class="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-50 transition duration-150">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" />
+                                        </svg>
+                                    </button>
+                                </div>
+                             </li>`;
+                });
+                html += `</ul>`;
+            });
+            displayArea.innerHTML = html;
+        }
+
         function renderUncompletedOverview() {
             const container = document.getElementById('uncompletedOverviewContainer');
             let allUncompleted = [];
 
             Object.keys(PHARMACY_MAP).forEach(pharmacyName => {
+                if (pharmacyName === 'RecycleBin') return;
                 const list = currentInvoiceLists[pharmacyName] || [];
-                const uncompleted = list.filter(item => !item.completed && !item.readyForDeletionTimestamp);
+                const uncompleted = list.filter(item => !item.completed && !item.readyForDeletionTimestamp && !item.isDeleted);
                 uncompleted.forEach(item => {
                     allUncompleted.push({ ...item, pharmacy: pharmacyName });
                 });
@@ -702,7 +858,7 @@
             allUncompleted.sort((a, b) => {
                 const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
                 const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
-                return timeA - timeB; // Sắp xếp tăng dần (cũ nhất lên đầu)
+                return timeA - timeB;
             });
 
             let html = `<ul class="space-y-1">`;
@@ -718,7 +874,6 @@
                 let statusEmoji = '⚠️';
                 let badgeClass = 'bg-gray-100 text-gray-700';
 
-                // Thay đổi màu sắc dựa trên số ngày đã được lập
                 if (daysOld >= 5) {
                     statusClass = 'text-red-700 font-extrabold';
                     statusEmoji = '🚨';
@@ -764,14 +919,9 @@
             container.innerHTML = html;
         }
 
-        // =========================================================================
-        // 🏁 KHỞI TẠO ỨNG DỤNG
-        // =========================================================================
-        
-        // Chuyển tab và tải dữ liệu mới
         function showPharmacy(pharmacyName, key) {
             const tabElement = document.getElementById(`tab${key}`);
-            const allKeys = Object.values(PHARMACY_MAP);
+            const allKeys = Object.values(PHARMACY_MAP).filter(k => k !== 'RecycleBin');
             allKeys.forEach(k => {
                 document.getElementById(`content${k}`)?.classList.add('hidden');
                 document.getElementById(`form${k}`)?.classList.add('hidden');
@@ -796,12 +946,17 @@
             document.getElementById('loadingIndicator').classList.add('hidden');
             document.getElementById('app-container').classList.remove('opacity-0');
             
-            Object.keys(PHARMACY_MAP).forEach(pharmacyName => {
-                filterAndLoadInvoices(pharmacyName, currentFilter[pharmacyName] || 'all');
+            Object.keys(PHARMACY_MAP).forEach(key => {
+                if (key !== 'RecycleBin') {
+                    filterAndLoadInvoices(key, currentFilter[key] || 'all');
+                }
             });
 
             showPharmacy('NT Tuệ Thiện', 'TueThien');
+            document.addEventListener('DOMContentLoaded', initApp, { once: true });
         }
+
+        document.addEventListener('DOMContentLoaded', initApp, { once: true });
     </script>
 </body>
 </html>
