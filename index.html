@@ -14,8 +14,8 @@
         .modern-scroll::-webkit-scrollbar-thumb { background-color: #34d399; border-radius: 10px; }
         .sticky-plus { position: absolute; bottom: 20px; right: 20px; z-index: 20; }
         .recycle-bin-btn { position: fixed; bottom: 20px; right: 20px; z-index: 30; }
-                
-        /* Nâng cấp: Dark mode support - Đồng bộ toàn bộ UI (toast, modal, loading, buttons, inputs, v.v.) */
+
+        /* --- DARK MODE NÂNG CẤP --- */
         @media (prefers-color-scheme: dark) {
             body { background-color: #1f2937; color: #f9fafb; }
             #app-container { background-color: #1f2937; border: 1px solid #374151; }
@@ -24,25 +24,27 @@
             .pharmacy-content { background-color: #1f2937; border-color: #4b5563; }
             #displayTueThien, #displayHungThinh, #displayRecycleBin { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
             .uncompleted-overview { background-color: #374151; border-color: #4b5563; }
-            /* Toast dark mode */
+            
+            /* Toast, Modal, Loading */
             #toastContainer > div { background-color: #1f2937 !important; color: #f9fafb !important; border: 1px solid #374151; }
             #toastContainer > div:hover { background-color: #374151 !important; }
-            /* Modal dark mode */
             #recycleBinModal, #deleteConfirmModal, #formTueThien, #formHungThinh, #invoiceDetailModal { background-color: rgba(31, 41, 55, 0.95) !important; }
             #recycleBinModal > div, #deleteConfirmModal > div, #formTueThien > div, #formHungThinh > div, #invoiceDetailModal > div { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
-            /* Loading dark mode */
             #loadingIndicator { background-color: rgba(31, 41, 55, 0.95); }
             #loadingIndicator > div { background-color: #1f2937; color: #f9fafb; }
-            /* Inputs và buttons dark mode */
+
+            /* Inputs và buttons */
             input[type="text"], input[type="date"], input[type="url"] { background-color: #4b5563; color: #f9fafb; border-color: #6b7280; }
             input[type="text"]:focus, input[type="date"]:focus, input[type="url"]:focus { border-color: #10b981; ring-color: #10b981; }
             button { background-color: #4b5563; color: #f9fafb; }
             button:hover { background-color: #6b7280; }
             .filter-active { background-color: #059669 !important; }
-            /* Footer và text */
+            
+            /* Text và Footer */
             footer { color: #d1d5db; }
         }
-        /* Toggle dark mode class - Đồng bộ với Tailwind dark: prefix */
+
+        /* Toggle dark mode class - GHI ĐÈ ĐỘ TƯƠNG PHẢN TỐI ĐA */
         .dark body { background-color: #1f2937; color: #f9fafb; }
         .dark #app-container { background-color: #1f2937; border: 1px solid #374151; }
         .dark .invoice-item { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
@@ -50,50 +52,30 @@
         .dark .pharmacy-content { background-color: #1f2937; border-color: #4b5563; }
         .dark #displayTueThien, .dark #displayHungThinh, .dark #displayRecycleBin { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
         .dark .uncompleted-overview { background-color: #374151; border-color: #4b5563; }
-        .dark #toastContainer > div { background-color: #1f2937 !important; color: #f9fafb !important; border: 1px solid #374151; }
-        .dark #toastContainer > div:hover { background-color: #374151 !important; }
-        .dark #recycleBinModal, .dark #deleteConfirmModal, .dark #formTueThien, .dark #formHungThinh, .dark #invoiceDetailModal { background-color: rgba(31, 41, 55, 0.95) !important; }
-        .dark #recycleBinModal > div, .dark #deleteConfirmModal > div, .dark #formTueThien > div, .dark #formHungThinh > div, .dark #invoiceDetailModal > div { background-color: #374151; color: #f9fafb; border-color: #4b5563; }
-        .dark #loadingIndicator { background-color: rgba(31, 41, 55, 0.95); }
-        .dark #loadingIndicator > div { background-color: #1f2937; color: #f9fafb; }
-        .dark input[type="text"], .dark input[type="date"], .dark input[type="url"] { background-color: #4b5563; color: #f9fafb; border-color: #6b7280; }
-        .dark input[type="text"]:focus, .dark input[type="date"]:focus, .dark input[type="url"]:focus { border-color: #10b981; ring-color: #10b981; }
-        .dark button { background-color: #4b5563; color: #f9fafb; }
-        .dark button:hover { background-color: #6b7280; }
-        .dark .filter-active { background-color: #059669 !important; }
-        .dark footer { color: #d1d5db; }
-        .dark h1, .dark h2, .dark h3, .dark h4 { color: #f9fafb; }
-        .dark .text-gray-500, .dark .text-gray-700, .dark .text-gray-800 { color: #d1d5db; }
+
+        /* Cải thiện Text Color để dễ đọc hơn */
+        .dark h1, .dark h2, .dark h3, .dark h4 { color: #f9fafb !important; }
+        .dark .text-gray-700, .dark .text-gray-800 { color: #d1d5db !important; } /* Chữ chính */
+        .dark .text-gray-500 { color: #9ca3af !important; } /* Chữ phụ - Cải thiện độ rõ */
+        .dark .text-gray-400 { color: #6b7280 !important; } /* Chữ mờ hơn (timeAgo) - Đủ rõ */
+
+        /* Cải thiện màu sắc của các trạng thái (alerts, badges) */
         .dark .bg-white, .dark .bg-gray-50 { background-color: #374151 !important; }
+        .dark .bg-red-50 { background-color: #451a03 !important; } /* Nền đỏ tối hơn */
+        .dark .text-red-700 { color: #fca5a5 !important; } /* Chữ đỏ sáng hơn */
+        .dark .bg-red-50\/70 { background-color: rgba(69, 26, 3, 0.7) !important; }
+        .dark .bg-orange-100 { background-color: #9a3412 !important; } /* Nền cam đậm */
+        .dark .text-orange-600, .dark .text-orange-700 { color: #fdba74 !important; } /* Chữ cam sáng */
+        .dark .bg-green-50, .dark .bg-green-50\/70 { background-color: #061a05 !important; }
+        .dark .bg-blue-50 { background-color: #1e3a8a !important; } /* Nền xanh đậm cho nút "Xem chi tiết" */
+        
+        /* Đảm bảo các thành phần UI khác hiển thị đúng */
         .dark .border-gray-100, .dark .border-gray-200 { border-color: #4b5563 !important; }
-        .dark .bg-red-50 { background-color: #451a03 !important; }
-        .dark .bg-green-50 { background-color: #061a05 !important; }
-        .dark .text-red-700 { color: #fca5a5 !important; }
-        .dark .text-green-700 { color: #86efac !important; }
-        .dark .text-green-800 { color: #4ade80 !important; }
-        .dark .bg-red-600 { background-color: #dc2626 !important; }
-        .dark .bg-green-600 { background-color: #16a34a !important; }
-        .dark .bg-blue-600 { background-color: #2563eb !important; }
         .dark .bg-gray-200 { background-color: #4b5563 !important; }
         .dark .bg-gray-300 { background-color: #6b7280 !important; }
         .dark .hover\:bg-gray-300:hover { background-color: #9ca3af !important; }
-        .dark .text-gray-700 { color: #d1d5db !important; }
-        .dark .bg-red-100 { background-color: #fee2e2 !important; }
-        .dark .text-red-600 { color: #fca5a5 !important; }
-        .dark .bg-orange-100 { background-color: #fed7aa !important; }
-        .dark .text-orange-700 { color: #f97316 !important; }
-        .dark .bg-blue-50 { background-color: #dbeafe !important; }
-        .dark .text-blue-500 { color: #3b82f6 !important; }
-        .dark .hover\:text-blue-700:hover { color: #1d4ed8 !important; }
-        .dark .bg-green-100 { background-color: #dcfce7 !important; }
-        .dark .text-green-500 { color: #22c55e !important; }
-        .dark .hover\:text-green-700:hover { color: #16a34a !important; }
-        .dark .bg-red-50\/70 { background-color: rgba(239, 68, 68, 0.7) !important; }
-        .dark .bg-green-50\/70 { background-color: rgba(34, 197, 94, 0.7) !important; }
-        .dark .text-gray-400 { color: #9ca3af !important; }
-        .dark .text-red-100 { color: #fee2e2 !important; }
-        .dark .hover\:text-white:hover { color: #f9fafb !important; }
-        .dark .bg-red-500 { background-color: #ef4444 !important; }
+        .dark .filter-active { background-color: #059669 !important; }
+        .dark footer { color: #d1d5db; }
         
         /* Nâng cấp: Cải thiện phần Hóa Đơn Chưa Hoàn Thành - Rộng ra mặc định, nhỏ lại khi mở tab NT */
         .uncompleted-overview { 
@@ -116,72 +98,72 @@
                 max-height: 20vh; 
             }
         }
-        
+                
         /* Nâng cấp thêm: Tối ưu hóa cho mobile (cải thiện từ phiên bản trước) */
         @media (max-width: 640px) { 
-            #app-container { padding: 0.5rem; margin: 0.25rem; border-radius: 1rem; } 
-            h1 { font-size: 1.5rem !important; line-height: 1.2; } 
-            .pharmacy-content { padding: 0.75rem; } 
-            .invoice-item { padding: 0.5rem; font-size: 0.875rem; } 
-            .filter-buttons { 
-                flex-wrap: wrap; 
-                gap: 0.5rem; 
-                justify-content: center; 
-            }
+             #app-container { padding: 0.5rem; margin: 0.25rem; border-radius: 1rem; } 
+             h1 { font-size: 1.5rem !important; line-height: 1.2; } 
+             .pharmacy-content { padding: 0.75rem; } 
+             .invoice-item { padding: 0.5rem; font-size: 0.875rem; } 
+             .filter-buttons { 
+                 flex-wrap: wrap; 
+                 gap: 0.5rem; 
+                 justify-content: center; 
+             }
             .filter-buttons button { 
-                flex: 1 1 45%; 
-                min-width: 100px; 
-                padding: 0.75rem 0.5rem; 
-                font-size: 0.75rem; 
-                white-space: nowrap; 
-            }
+                 flex: 1 1 45%; 
+                 min-width: 100px; 
+                 padding: 0.75rem 0.5rem; 
+                 font-size: 0.75rem; 
+                 white-space: nowrap; 
+             }
             .tab-buttons { 
-                flex-direction: column; 
-                gap: 0.25rem; 
-            }
+                 flex-direction: column; 
+                 gap: 0.25rem; 
+             }
             .tab-buttons button { 
-                border-radius: 0.5rem; 
-                margin: 0; 
-                padding: 0.75rem; 
-                font-size: 1rem; 
-            }
+                 border-radius: 0.5rem; 
+                 margin: 0; 
+                 padding: 0.75rem; 
+                 font-size: 1rem; 
+             }
             #displayTueThien, #displayHungThinh, #displayRecycleBin { 
-                height: 60vh; 
-                min-height: 300px; 
-            }
+                 height: 60vh; 
+                 min-height: 300px; 
+             }
             .invoice-item span { 
-                flex-wrap: wrap; 
-                word-break: break-word; 
-            }
+                 flex-wrap: wrap; 
+                 word-break: break-word; 
+             }
             .invoice-item .flex.space-x-2 { 
-                flex-direction: row; 
-                gap: 0.25rem; 
-            }
+                 flex-direction: row; 
+                 gap: 0.25rem; 
+             }
             @media (max-width: 360px) {
                 .invoice-item .flex.space-x-2 { 
-                    flex-direction: column; 
-                    gap: 0.25rem; 
-                    align-items: flex-end; 
-                }
+                     flex-direction: column; 
+                     gap: 0.25rem; 
+                     align-items: flex-end; 
+                 }
                 .invoice-item { font-size: 0.8rem; }
                 input[type="text"], input[type="date"], input[type="url"] { font-size: 0.9rem; }
             }
             input[type="text"], input[type="date"], input[type="url"] { 
-                padding: 0.75rem; 
-                font-size: 1rem; 
-            }
+                 padding: 0.75rem; 
+                 font-size: 1rem; 
+             }
             #formTueThien, #formHungThinh, #recycleBinModal, #deleteConfirmModal, #invoiceDetailModal { 
-                padding: 1rem; 
-            }
+                 padding: 1rem; 
+             }
             #formTueThien div, #formHungThinh div, #recycleBinModal div, #deleteConfirmModal div, #invoiceDetailModal div { 
-                max-width: 100%; 
-                width: 100%; 
-            }
+                 max-width: 100%; 
+                 width: 100%; 
+             }
         }
         @media (max-width: 480px) {
             h1 { font-size: 1.25rem !important; }
             body { padding: 0.5rem; } 
-            .pharmacy-content { border-radius: 0.5rem; padding: 0.5rem; }
+             .pharmacy-content { border-radius: 0.5rem; padding: 0.5rem; }
         }
         @media (min-width: 768px) {
             .tab-buttons { flex-direction: row; }
@@ -208,20 +190,16 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
         </svg>
     </button>
-        
-    <div id="toastContainer" class="fixed top-2 right-2 z-[100] space-y-2"></div>
-        
-    <div id="loadingIndicator" class="fixed inset-0 bg-white bg-opacity-70 z-[101] flex items-center justify-center">
+            <div id="toastContainer" class="fixed top-2 right-2 z-[100] space-y-2"></div>
+            <div id="loadingIndicator" class="fixed inset-0 bg-white bg-opacity-70 z-[101] flex items-center justify-center">
         <div class="p-4 bg-green-100 rounded-lg shadow-xl flex items-center space-x-3 animate-pulse">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
             <p class="text-green-800 font-semibold text-sm">Đang đồng bộ dữ liệu từ Firestore...</p>
         </div>
     </div>
-        
-    <div id="app-container" class="bg-white shadow-2xl rounded-2xl p-4 md:p-8 opacity-0 transition duration-500">
+            <div id="app-container" class="bg-white shadow-2xl rounded-2xl p-4 md:p-8 opacity-0 transition duration-500">
         <h1 class="text-2xl md:text-3xl font-extrabold text-center text-green-700 mb-6 border-b-2 pb-2">QUẢN LÝ HÓA ĐƠN </h1>
-                
-        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-md">
+                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl shadow-md">
             <h2 class="text-lg md:text-xl font-bold text-red-700 mb-3 flex items-center border-b pb-2">
                 🔴 HÓA ĐƠN CHƯA HOÀN THÀNH
             </h2>
@@ -229,8 +207,7 @@
                 <div class="text-center text-gray-500 py-6">Đang tải danh sách hóa đơn chưa hoàn thành...</div>
             </div>
         </div>
-                
-        <div class="flex tab-buttons justify-center border-b-2 border-gray-200 mb-6">
+                        <div class="flex tab-buttons justify-center border-b-2 border-gray-200 mb-6">
             <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien')" aria-label="Ẩn/Hiện NT Tuệ Thiện" class="flex-1 py-3 px-2 text-sm font-semibold focus:outline-none transition duration-150 border-transparent hover:bg-gray-100 rounded-t-lg tab-collapsed">
                 <h3 class="font-bold text-base md:text-lg text-green-800 text-center flex items-center justify-center">
                     NT TUỆ THIỆN
@@ -248,8 +225,7 @@
                 </h3>
             </button>
         </div>
-                
-        <div id="contentTueThien" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
+                        <div id="contentTueThien" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
             <div class="mb-4">
                 <input type="text" id="searchTueThien" oninput="debounceSearch('NT Tuệ Thiện', 'TueThien', this.value)" aria-label="Tìm kiếm hóa đơn"
                        placeholder="🔍 Tìm kiếm hóa đơn theo tên hoặc ngày..."
@@ -283,8 +259,7 @@
                 </div>
             </div>
         </div>
-                
-        <div id="contentHungThinh" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
+                        <div id="contentHungThinh" class="pharmacy-content hidden bg-gray-50/50 shadow-inner relative">
             <div class="mb-4">
                 <input type="text" id="searchHungThinh" oninput="debounceSearch('NT Hưng Thịnh', 'HungThinh', this.value)" aria-label="Tìm kiếm hóa đơn"
                        placeholder="🔍 Tìm kiếm hóa đơn theo tên hoặc ngày..."
@@ -318,14 +293,12 @@
                 </div>
             </div>
         </div>
-                
-        <button id="recycleBinButton" onclick="toggleRecycleBinModal()" aria-label="Mở thùng rác" class="recycle-bin-btn bg-red-600 text-white p-3 rounded-full shadow-xl hover:bg-red-700 transition duration-150 transform hover:scale-105">
+                        <button id="recycleBinButton" onclick="toggleRecycleBinModal()" aria-label="Mở thùng rác" class="recycle-bin-btn bg-red-600 text-white p-3 rounded-full shadow-xl hover:bg-red-700 transition duration-150 transform hover:scale-105">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" />
             </svg>
         </button>
-                
-        <div id="recycleBinModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                        <div id="recycleBinModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
             <div class="bg-white p-6 rounded-2xl shadow-2xl w-full max-w-lg mx-auto border border-red-300">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-red-700">🗑️ THÙNG RÁC</h3>
@@ -346,8 +319,7 @@
                 </div>
             </div>
         </div>
-                
-        <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+                        <div id="deleteConfirmModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
             <div class="bg-white p-6 rounded-2xl shadow-2xl max-w-xs w-full mx-auto border border-red-300">
                 <h3 class="text-xl font-bold text-red-700 mb-3 border-b pb-2">Xác nhận Xóa Hóa Đơn</h3>
                 <p class="text-gray-700 text-sm mb-4" id="deleteConfirmMessage">Bạn có chắc chắn muốn xóa hóa đơn này không?</p>
@@ -357,7 +329,6 @@
                 </div>
             </div>
         </div>
-
         <div id="invoiceDetailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
             <div class="bg-white dark:bg-gray-700 p-6 rounded-2xl shadow-2xl w-full max-w-sm mx-auto border border-green-300 dark:border-green-600">
                 <div class="flex justify-between items-center mb-4 border-b pb-2">
@@ -383,8 +354,7 @@
                 </div>
             </div>
         </div>
-                
-        <footer class="mt-8 mb-2 text-center text-gray-500 text-xs font-medium">NĐT - Phiên bản 2025</footer>
+                        <footer class="mt-8 mb-2 text-center text-gray-500 text-xs font-medium">NĐT - Phiên bản 2025</footer>
     </div>
 <script>
     // Nâng cấp: Giữ nguyên logic JS cốt lõi, thêm pagination, dark mode, và cải thiện validation (bỏ export CSV)
@@ -397,23 +367,19 @@
         appId: "1:1008741702165:web:7e81901f4aac66cb9a0c1c",
         measurementId: "G-ZZ4EMWNN8VB"
     };
-            
-    firebase.initializeApp(FIREBASE_CONFIG);
+                firebase.initializeApp(FIREBASE_CONFIG);
     const db = firebase.firestore();
     const COLLECTION_NAME = 'medx_invoices';
-
     const PHARMACY_MAP = { 'NT Tuệ Thiện': 'TueThien', 'NT Hưng Thịnh': 'HungThinh', 'RecycleBin': 'RecycleBin' };
     const ONE_DAY_MS = 24 * 60 * 60 * 1000;
     const THREE_DAYS_MS = 3 * ONE_DAY_MS;
     const INVOICES_PER_PAGE = 20;
-
     let currentDeleteTarget = { pharmacyName: null, invoiceId: null, isPermanent: false };
     let currentInvoiceLists = {};
     let currentFilter = { 'NT Tuệ Thiện': 'all', 'NT Hưng Thịnh': 'all', 'RecycleBin': 'all' };
     let unsubscribeListeners = {};
     let searchTimeout = {};
     let paginationStates = { 'NT Tuệ Thiện': { lastDoc: null, hasMore: true }, 'NT Hưng Thịnh': { lastDoc: null, hasMore: true }, 'RecycleBin': { lastDoc: null, hasMore: true } };
-
     // Nâng cấp: Dark mode toggle - Đồng bộ với toàn bộ UI
     function toggleDarkMode() {
         document.body.classList.toggle('dark');
@@ -426,14 +392,12 @@
         }
         localStorage.setItem('darkMode', document.body.classList.contains('dark'));
     }
-
     // Load dark mode from localStorage
     if (localStorage.getItem('darkMode') === 'true') {
         document.body.classList.add('dark');
         const path = document.getElementById('darkModeIcon').querySelector('path');
         path.setAttribute('d', 'M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z');
     }
-
     function getCurrentDateKey() {
         const d = new Date();
         let month = '' + (d.getMonth() + 1);
@@ -443,7 +407,6 @@
         if (day.length < 2) day = '0' + day;
         return [year, month, day].join('-');
     }
-
     function formatDate(dateKey) {
         if (!dateKey) return 'Không rõ ngày';
         const parts = dateKey.split('-');
@@ -452,25 +415,22 @@
         }
         return dateKey;
     }
-
     function timeAgo(timestamp) {
         if (!timestamp) return 'Không rõ';
         const date = timestamp.toDate();
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
-
-        let interval = seconds / 31536000; 
+        let interval = seconds / 31536000;
         if (interval > 1) { return Math.floor(interval) + " năm trước"; }
-        interval = seconds / 2592000; 
+        interval = seconds / 2592000;
         if (interval > 1) { return Math.floor(interval) + " tháng trước"; }
-        interval = seconds / 86400; 
+        interval = seconds / 86400;
         if (interval > 1) { return Math.floor(interval) + " ngày trước"; }
-        interval = seconds / 3600; 
+        interval = seconds / 3600;
         if (interval > 1) { return Math.floor(interval) + " giờ trước"; }
-        interval = seconds / 60; 
+        interval = seconds / 60;
         if (interval > 1) { return Math.floor(interval) + " phút trước"; }
         return "Vừa xong";
     }
-
     function showToast(message, type = 'success') {
         const container = document.getElementById('toastContainer');
         const id = Date.now();
@@ -495,7 +455,6 @@
             setTimeout(() => { toastElement.remove(); }, 300);
         }, 3000);
     }
-
     function isValidUrl(string) {
         try {
             new URL(string);
@@ -504,7 +463,6 @@
             return false;
         }
     }
-
     // Nâng cấp: Debounce per search field
     function debounceSearch(pharmacyName, key, searchTerm) {
         clearTimeout(searchTimeout[key]);
@@ -512,7 +470,6 @@
             searchInvoices(pharmacyName, key, searchTerm);
         }, 400);
     }
-
     function updateFilterButtons(pharmacyKey, activeFilter) {
         const filters = ['All', 'Uncompleted', 'Completed'];
         filters.forEach(f => {
@@ -527,8 +484,7 @@
             }
         });
     }
-            
-    function toggleInvoiceForm(key, reset = true) {
+                function toggleInvoiceForm(key, reset = true) {
         const formElement = document.getElementById(`form${key}`);
         const nameInput = document.getElementById(`input${key}Name`);
         const dateInput = document.getElementById(`input${key}Date`);
@@ -536,7 +492,6 @@
         const idInput = document.getElementById(`input${key}Id`);
         const formTitle = document.getElementById(`formTitle${key}`);
         const saveButton = document.getElementById(`saveButton${key}`);
-
         if (formElement.classList.contains('hidden')) {
             formElement.classList.remove('hidden');
             if (reset) {
@@ -556,39 +511,32 @@
             linkInput.classList.remove('border-red-500', 'ring-red-500');
         }
     }
-
     function startEditInvoice(pharmacyName, invoiceId) {
         const list = currentInvoiceLists[pharmacyName] || [];
         const invoiceToEdit = list.find(c => c.id === invoiceId);
         if (!invoiceToEdit) return;
         const key = PHARMACY_MAP[pharmacyName];
-                        
-        document.getElementById(`input${key}Name`).value = invoiceToEdit.name;
+                                document.getElementById(`input${key}Name`).value = invoiceToEdit.name;
         document.getElementById(`input${key}Date`).value = invoiceToEdit.date;
         document.getElementById(`input${key}Link`).value = invoiceToEdit.link || '';
         document.getElementById(`input${key}Id`).value = invoiceToEdit.id;
         document.getElementById(`formTitle${key}`).textContent = 'Chỉnh Sửa Hóa Đơn';
-                        
-        const saveButton = document.getElementById(`saveButton${key}`);
+                                const saveButton = document.getElementById(`saveButton${key}`);
         saveButton.textContent = 'Cập Nhật';
         saveButton.classList.remove('bg-green-600', 'hover:bg-green-700');
         saveButton.classList.add('bg-blue-600', 'hover:bg-blue-700');
-                        
-        toggleInvoiceForm(key, false);
+                                toggleInvoiceForm(key, false);
     }
-
     function showDeleteModal(pharmacyName, invoiceId, invoiceName, isPermanent = false) {
         currentDeleteTarget = { pharmacyName, invoiceId, isPermanent };
         const action = isPermanent ? 'xóa vĩnh viễn' : 'xóa';
         document.getElementById('deleteConfirmMessage').innerHTML = `Bạn có chắc chắn muốn **${action}** hóa đơn **${invoiceName}**${isPermanent ? '' : ` khỏi ${pharmacyName}`} không?`;
         document.getElementById('deleteConfirmModal').classList.remove('hidden');
     }
-
     function hideDeleteModal() {
         document.getElementById('deleteConfirmModal').classList.add('hidden');
         currentDeleteTarget = { pharmacyName: null, invoiceId: null, isPermanent: false };
     }
-
     function toggleRecycleBinModal() {
         const modal = document.getElementById('recycleBinModal');
         if (modal.classList.contains('hidden')) {
@@ -603,7 +551,6 @@
             paginationStates['RecycleBin'] = { lastDoc: null, hasMore: true };
         }
     }
-
     // Nâng cấp: Hàm hiển thị chi tiết hóa đơn (Modal) (THÊM MỚI)
     function showInvoiceDetailModal(invoice) {
         document.getElementById('detailInvoiceName').textContent = invoice.name;
@@ -611,14 +558,12 @@
         document.getElementById('detailInvoiceDate').textContent = formatDate(invoice.date);
         // Sửa đổi: Đọc 'createdAt' là milliseconds (hoặc null)
         document.getElementById('detailCreatedAt').textContent = invoice.createdAt ? new Date(invoice.createdAt).toLocaleString() : 'Không rõ';
-
         const linkContainer = document.getElementById('detailInvoiceLink');
-        linkContainer.innerHTML = ''; 
-
+        linkContainer.innerHTML = '';
         if (invoice.link && isValidUrl(invoice.link)) {
             linkContainer.innerHTML = `
-                <a href="${invoice.link}" target="_blank" rel="noopener noreferrer" 
-                   class="text-blue-500 hover:text-blue-700 font-bold flex items-center transition duration-150">
+                <a href="${invoice.link}" target="_blank" rel="noopener noreferrer"
+                    class="text-blue-500 hover:text-blue-700 font-bold flex items-center transition duration-150">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-7-5l-5 5m0 0h4m-4 0v4m-1-5l5-5" />
                     </svg>
@@ -628,15 +573,12 @@
         } else {
             linkContainer.textContent = 'Không có liên kết đính kèm.';
         }
-
         document.getElementById('invoiceDetailModal').classList.remove('hidden');
     }
-
     // Nâng cấp: Hàm ẩn chi tiết hóa đơn (Modal) (THÊM MỚI)
     function hideInvoiceDetailModal() {
         document.getElementById('invoiceDetailModal').classList.add('hidden');
     }
-
     async function performDelete() {
         const { pharmacyName, invoiceId, isPermanent } = currentDeleteTarget;
         if (!pharmacyName || !invoiceId) {
@@ -660,7 +602,6 @@
         }
         hideDeleteModal();
     }
-
     async function restoreInvoice(invoiceId, invoiceName) {
         try {
             await db.collection(COLLECTION_NAME).doc(invoiceId).update({
@@ -673,18 +614,15 @@
             showToast(`Lỗi: Không thể khôi phục hóa đơn. Chi tiết: ${e.message.substring(0, 50)}...`, 'error');
         }
     }
-
     async function cancelGroupDeletion(pharmacyName, dateKey) {
         let list = currentInvoiceLists[pharmacyName] || [];
         const companiesInDay = list.filter(c => c.date === dateKey && c.readyForDeletionTimestamp);
         if (companiesInDay.length === 0) return;
-
         const batch = db.batch();
         companiesInDay.forEach(c => {
             const docRef = db.collection(COLLECTION_NAME).doc(c.id);
             batch.update(docRef, { readyForDeletionTimestamp: firebase.firestore.FieldValue.delete(), completed: false });
         });
-
         try {
             await batch.commit();
             showToast(`Đã HỦY bỏ việc xóa tự động cho ngày ${formatDate(dateKey)}.`, 'info');
@@ -693,16 +631,13 @@
             showToast(`Lỗi khi hủy bỏ xóa nhóm: ${e.message.substring(0, 50)}...`, 'error');
         }
     }
-
     async function toggleCompletion(pharmacyName, invoiceId) {
         let list = currentInvoiceLists[pharmacyName] || [];
         const originalCompany = list.find(c => c.id === invoiceId);
         if (!originalCompany) return;
-
         const newCompletedState = !originalCompany.completed;
         const dateKey = originalCompany.date;
         let toastMessage = '';
-
         try {
             await db.collection(COLLECTION_NAME).doc(invoiceId).update({ completed: newCompletedState });
             toastMessage = newCompletedState ? `Hóa đơn đã hoàn thành.` : `Hóa đơn "${originalCompany.name}" chưa hoàn thành.`;
@@ -710,22 +645,18 @@
             showToast(`Lỗi cập nhật trạng thái: ${e.message.substring(0, 50)}...`, 'error');
             return;
         }
-
         const currentList = currentInvoiceLists[pharmacyName];
         const companiesInDay = currentList.filter(c => c.date === dateKey);
         const allCompletedAfterUpdate = companiesInDay.every(c => c.completed);
-                        
-        if (allCompletedAfterUpdate && newCompletedState) {
+                                if (allCompletedAfterUpdate && newCompletedState) {
             const deletionTime = Date.now() + THREE_DAYS_MS;
             const batch = db.batch();
-                                
-            companiesInDay.forEach(c => {
-                if (!c.readyForDeletionTimestamp || c.id === invoiceId) { 
-                     const docRef = db.collection(COLLECTION_NAME).doc(c.id);
+                                            companiesInDay.forEach(c => {
+                if (!c.readyForDeletionTimestamp || c.id === invoiceId) {
+                      const docRef = db.collection(COLLECTION_NAME).doc(c.id);
                      batch.update(docRef, { readyForDeletionTimestamp: deletionTime });
                 }
             });
-
             try {
                 await batch.commit();
                 toastMessage = `Ngày ${formatDate(dateKey)} đã hoàn thành 100% và được đánh dấu xóa sau 3 ngày.`;
@@ -742,8 +673,8 @@
             });
             try {
                 await batch.commit();
-                if (companiesInDay.some(c => c.readyForDeletionTimestamp)) { 
-                     toastMessage = `Đã HỦY bỏ việc xóa tự động cho ngày ${formatDate(dateKey)}.`;
+                if (companiesInDay.some(c => c.readyForDeletionTimestamp)) {
+                      toastMessage = `Đã HỦY bỏ việc xóa tự động cho ngày ${formatDate(dateKey)}.`;
                 }
             } catch (e) {
                 showToast(`Lỗi hủy xóa nhóm: ${e.message.substring(0, 50)}...`, 'error');
@@ -751,39 +682,32 @@
         }
         showToast(toastMessage, allCompletedAfterUpdate ? 'info' : 'success');
     }
-
     async function saveInvoice(pharmacyName, inputNameId, inputDateId, inputLinkId, inputIdId) {
         const companyInput = document.getElementById(inputNameId);
         const dateInput = document.getElementById(inputDateId);
         const linkInput = document.getElementById(inputLinkId);
         const idInput = document.getElementById(inputIdId);
-
         const invoiceId = idInput.value.trim();
         const invoiceName = companyInput.value.trim();
         const dateKey = dateInput.value.trim() || getCurrentDateKey();
         let invoiceLink = linkInput.value.trim();
-
         if (invoiceLink && !isValidUrl(invoiceLink)) {
             linkInput.classList.add('border-red-500', 'ring-red-500');
             showToast('Link không hợp lệ (phải là URL đầy đủ như https://...).', 'error');
             setTimeout(() => { linkInput.classList.remove('border-red-500', 'ring-red-500'); }, 1000);
             return;
         }
-
         let successMessage;
         let savedSuccessfully = false;
-
         if (invoiceName === "") {
             companyInput.classList.add('border-red-500', 'ring-red-500');
             showToast('Tên hóa đơn không được để trống.', 'error');
             setTimeout(() => { companyInput.classList.remove('border-red-500', 'ring-red-500'); }, 1000);
             return;
         }
-
         const baseData = { name: invoiceName, date: dateKey, link: invoiceLink || null };
-
-        if (invoiceId) { 
-             try {
+        if (invoiceId) {
+              try {
                 await db.collection(COLLECTION_NAME).doc(invoiceId).update(baseData);
                 successMessage = `Hóa đơn "${invoiceName}" đã được CẬP NHẬT thành công!`;
                 savedSuccessfully = true;
@@ -791,8 +715,8 @@
                 console.error("Lỗi cập nhật Firestore:", e);
                 showToast(`Lỗi cập nhật: ${e.message.substring(0, 50)}...`, 'error');
             }
-        } else { 
-             const newInvoiceData = {
+        } else {
+              const newInvoiceData = {
                 ...baseData,
                 pharmacy: pharmacyName,
                 completed: false,
@@ -808,21 +732,18 @@
                 showToast(`Lỗi thêm mới: ${e.message.substring(0, 50)}...`, 'error');
             }
         }
-
         if (savedSuccessfully) {
             const key = PHARMACY_MAP[pharmacyName];
             toggleInvoiceForm(key, true);
             showToast(successMessage, invoiceId ? 'info' : 'success');
         }
     }
-
     // Nâng cấp: Toggle ẩn/hiện cho tab (accordion-style) - Thêm logic collapsed cho overview
     function togglePharmacy(pharmacyName, key) {
         const contentElement = document.getElementById(`content${key}`);
         const tabElement = document.getElementById(`tab${key}`);
         const allKeys = Object.values(PHARMACY_MAP).filter(k => k !== 'RecycleBin');
         const overview = document.getElementById('uncompletedOverviewContainer'); // Tham chiếu đến overview
-
         // Nếu content đang hiện, thì ẩn nó (đóng tab)
         if (!contentElement.classList.contains('hidden')) {
             contentElement.classList.add('hidden');
@@ -836,7 +757,6 @@
             overview.classList.remove('collapsed');
             return;
         }
-
         // Ẩn tất cả các tab khác
         allKeys.forEach(k => {
             if (k !== key) {
@@ -851,18 +771,15 @@
                 document.getElementById(`form${k}`)?.classList.add('hidden');
             }
         });
-
         // Hiện tab này
         contentElement.classList.remove('hidden');
         tabElement.classList.remove('tab-collapsed');
         tabElement.classList.add('bg-white', 'border-green-500', 'border-b-2');
         tabElement.classList.remove('text-gray-600', 'hover:bg-gray-100', 'border-transparent');
         tabElement.style.marginBottom = '-2px';
-        
-        // Thu nhỏ overview khi mở tab
+                // Thu nhỏ overview khi mở tab
         overview.classList.add('collapsed');
-        
-        // Load dữ liệu nếu chưa load
+                // Load dữ liệu nếu chưa load
         if (!currentInvoiceLists[pharmacyName]) {
             filterAndLoadInvoices(pharmacyName, currentFilter[pharmacyName] || 'all', true);
         } else {
@@ -870,36 +787,28 @@
             renderUncompletedOverview();
         }
     }
-
     // Nâng cấp: Thêm pagination params
     function filterAndLoadInvoices(pharmacyName, filterType, resetPagination = false) {
         const pharmacyKey = PHARMACY_MAP[pharmacyName];
-                        
-        if (unsubscribeListeners[pharmacyName]) { 
-             unsubscribeListeners[pharmacyName]();
+                                if (unsubscribeListeners[pharmacyName]) {
+              unsubscribeListeners[pharmacyName]();
         }
-                        
-        currentFilter[pharmacyName] = filterType;
+                                currentFilter[pharmacyName] = filterType;
         updateFilterButtons(pharmacyKey, filterType);
         document.getElementById(`search${pharmacyKey}`).value = '';
-
         if (resetPagination) {
             paginationStates[pharmacyName] = { lastDoc: null, hasMore: true };
         }
-
         let query = db.collection(COLLECTION_NAME)
             .where('pharmacy', '==', pharmacyName)
             .where('isDeleted', '==', false)
             .orderBy('date', 'desc');
-
         if (filterType === 'completed') {
             query = query.where('completed', '==', true);
         } else if (filterType === 'uncompleted') {
             query = query.where('completed', '==', false);
         }
-                        
-        query = query.limit(INVOICES_PER_PAGE);
-
+                                query = query.limit(INVOICES_PER_PAGE);
         unsubscribeListeners[pharmacyName] = query.onSnapshot(snapshot => {
             const list = [];
             let lastVisible = null;
@@ -907,9 +816,8 @@
                 list.push({ id: doc.id, ...doc.data() });
                 lastVisible = doc;
             });
-                                    
-            currentInvoiceLists[pharmacyName] = list; 
-            paginationStates[pharmacyName].lastDoc = lastVisible;
+                                                currentInvoiceLists[pharmacyName] = list;
+             paginationStates[pharmacyName].lastDoc = lastVisible;
             paginationStates[pharmacyName].hasMore = snapshot.size === INVOICES_PER_PAGE;
             const filteredList = runAutoCleanup(list);
             renderPharmacyList(pharmacyName, `display${pharmacyKey}`, filteredList, false, true);
@@ -929,25 +837,21 @@
             showToast(`Lỗi đồng bộ hóa dữ liệu: ${error.message.substring(0, 50)}...`, 'error');
         });
     }
-
     // Nâng cấp: Load more for pagination
     function loadMoreInvoices(pharmacyName, key) {
         if (!paginationStates[pharmacyName].hasMore || paginationStates[pharmacyName].lastDoc === null) return;
-
         let query = db.collection(COLLECTION_NAME)
             .where('pharmacy', '==', pharmacyName)
             .where('isDeleted', '==', false)
             .orderBy('date', 'desc')
             .startAfter(paginationStates[pharmacyName].lastDoc)
             .limit(INVOICES_PER_PAGE);
-
         const filterType = currentFilter[pharmacyName];
         if (filterType === 'completed') {
             query = query.where('completed', '==', true);
         } else if (filterType === 'uncompleted') {
             query = query.where('completed', '==', false);
         }
-
         query.get().then(snapshot => {
             const additionalList = [];
             let lastVisible = null;
@@ -966,7 +870,6 @@
             showToast(`Lỗi tải thêm dữ liệu: ${error.message.substring(0, 50)}...`, 'error');
         });
     }
-
     function renderPagination(pharmacyName, key) {
         const paginationContainer = document.getElementById(`pagination${key}`);
         if (!paginationStates[pharmacyName].hasMore) {
@@ -978,21 +881,17 @@
             <button onclick="loadMoreInvoices('${pharmacyName}', '${key}')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700">Tải Thêm</button>
         `;
     }
-
     function loadRecycleBin() {
         if (unsubscribeListeners['RecycleBin']) {
             unsubscribeListeners['RecycleBin']();
         }
-                        
-        currentFilter['RecycleBin'] = 'all';
+                                currentFilter['RecycleBin'] = 'all';
         document.getElementById('searchRecycleBin').value = '';
         paginationStates['RecycleBin'] = { lastDoc: null, hasMore: true };
-
         let query = db.collection(COLLECTION_NAME)
             .where('isDeleted', '==', true)
             .orderBy('deletedAt', 'desc')
             .limit(INVOICES_PER_PAGE);
-
         unsubscribeListeners['RecycleBin'] = query.onSnapshot(snapshot => {
             const list = [];
             let lastVisible = null;
@@ -1000,8 +899,7 @@
                 list.push({ id: doc.id, ...doc.data() });
                 lastVisible = doc;
             });
-                                    
-            currentInvoiceLists['RecycleBin'] = list;
+                                                currentInvoiceLists['RecycleBin'] = list;
             paginationStates['RecycleBin'].lastDoc = lastVisible;
             paginationStates['RecycleBin'].hasMore = snapshot.size === INVOICES_PER_PAGE;
             renderRecycleBinList(list, false, true);
@@ -1020,17 +918,14 @@
             showToast(`Lỗi đồng bộ hóa dữ liệu thùng rác: ${error.message.substring(0, 50)}...`, 'error');
         });
     }
-
     // Nâng cấp: Load more for RecycleBin
     function loadMoreRecycleBin() {
         if (!paginationStates['RecycleBin'].hasMore || paginationStates['RecycleBin'].lastDoc === null) return;
-
         let query = db.collection(COLLECTION_NAME)
             .where('isDeleted', '==', true)
             .orderBy('deletedAt', 'desc')
             .startAfter(paginationStates['RecycleBin'].lastDoc)
             .limit(INVOICES_PER_PAGE);
-
         query.get().then(snapshot => {
             const additionalList = [];
             let lastVisible = null;
@@ -1038,7 +933,6 @@
                 additionalList.push({ id: doc.id, ...doc.data() });
                 lastVisible = doc;
             });
-
             if (additionalList.length > 0) {
                 currentInvoiceLists['RecycleBin'] = [...currentInvoiceLists['RecycleBin'], ...additionalList];
                 paginationStates['RecycleBin'].lastDoc = lastVisible;
@@ -1050,21 +944,18 @@
             showToast(`Lỗi tải thêm thùng rác: ${error.message.substring(0, 50)}...`, 'error');
         });
     }
-
     function searchInvoices(pharmacyName, key, searchTerm) {
         const list = currentInvoiceLists[pharmacyName] || [];
         const displayElementId = `display${key}`;
         const query = searchTerm.toLowerCase().trim();
         let listToRender = list;
-
         if (query.length > 0) {
-            if (unsubscribeListeners[pharmacyName]) { 
-                 unsubscribeListeners[pharmacyName]();
+            if (unsubscribeListeners[pharmacyName]) {
+                  unsubscribeListeners[pharmacyName]();
             }
-                                
-            listToRender = list.filter(invoice =>
-                invoice.name.toLowerCase().includes(query) || 
-                 formatDate(invoice.date).includes(query)
+                                            listToRender = list.filter(invoice =>
+                invoice.name.toLowerCase().includes(query) ||
+                  formatDate(invoice.date).includes(query)
             );
             // Hide pagination in search mode
             document.getElementById(`pagination${key}`).classList.add('hidden');
@@ -1076,19 +967,16 @@
             }
             return;
         }
-                        
-        if (pharmacyName === 'RecycleBin') {
+                                if (pharmacyName === 'RecycleBin') {
             renderRecycleBinList(listToRender, true);
         } else {
             renderPharmacyList(pharmacyName, displayElementId, listToRender, true);
         }
     }
-
     function runAutoCleanup(list) {
         const now = Date.now();
         const batch = db.batch();
         let hasDeletions = false;
-
         const filteredList = list.filter(c => {
             if (c.readyForDeletionTimestamp && now > c.readyForDeletionTimestamp && !c.isDeleted) {
                 const docRef = db.collection(COLLECTION_NAME).doc(c.id);
@@ -1101,49 +989,40 @@
             }
             return true;
         });
-
         if (hasDeletions) {
             batch.commit().catch(e => {
                 console.error("Lỗi tự động chuyển vào thùng rác:", e);
                 showToast(`Lỗi tự động chuyển: ${e.message.substring(0, 50)}...`, 'error');
             });
         }
-
         return filteredList;
     }
-
     // Nâng cấp: Thêm param cho pagination visibility
     function renderPharmacyList(pharmacyName, displayElementId, list, isSearchMode = false, showPagination = false) {
         const displayArea = document.getElementById(displayElementId);
         const todayKey = getCurrentDateKey();
-                                        
-        if (list.length === 0) {
+                                                if (list.length === 0) {
             displayArea.innerHTML = `<div class="text-gray-500 text-center py-2">${isSearchMode ? 'Không tìm thấy hóa đơn phù hợp.' : 'Danh sách hóa đơn rỗng. Hãy nhấn dấu + để thêm hóa đơn mới.'}</div>`;
             return;
         }
-
         const groupedByDate = list.reduce((acc, entry) => {
             const date = entry.date || 'Không rõ ngày';
             if (!acc[date]) { acc[date] = []; }
             acc[date].push(entry);
             return acc;
         }, {});
-
         let html = isSearchMode ? '' : `<div class="p-2 text-sm font-bold text-gray-700 border-b border-gray-200 mb-4">Tổng cộng: ${list.length} Hóa đơn</div>`;
         const sortedDates = Object.keys(groupedByDate).sort().reverse();
-
         sortedDates.forEach(dateKey => {
             const companiesOnDate = groupedByDate[dateKey];
             const formattedDate = formatDate(dateKey);
             const isToday = dateKey === todayKey;
             const isDeletionPending = companiesOnDate[0].readyForDeletionTimestamp ? true : false;
-                                                
-            let groupStatusText = '';
+                                                            let groupStatusText = '';
             if (isDeletionPending) {
                 const timeToDeletion = companiesOnDate[0].readyForDeletionTimestamp - Date.now();
                 const daysLeft = Math.ceil(timeToDeletion / ONE_DAY_MS);
-                                                            
-                groupStatusText = `<span class="ml-2 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full flex items-center">
+                                                                            groupStatusText = `<span class="ml-2 text-xs font-medium text-red-600 bg-red-100 px-2 py-0.5 rounded-full flex items-center">
                                 <span class="mr-2">🗑️ Sẽ chuyển vào thùng rác sau ${daysLeft} ngày</span>
                                 <button onclick="cancelGroupDeletion('${pharmacyName}', '${dateKey}')"
                                     class="text-red-700 hover:text-white hover:bg-red-500 rounded-full transition duration-150 px-1 font-bold">
@@ -1151,12 +1030,10 @@
                                 </button>
                            </span>`;
             }
-                                                
-            const totalInDay = companiesOnDate.length;
+                                                            const totalInDay = companiesOnDate.length;
             const completedInDay = companiesOnDate.filter(c => c.completed).length;
             const progressText = `<span class="font-extrabold">${completedInDay}</span>/<span class="font-bold">${totalInDay}</span> đã xong`;
             const progressColor = (completedInDay === totalInDay) ? 'text-green-700' : 'text-orange-500';
-
             html += `<div class="mt-4 border-l-4 ${isToday ? 'border-red-600' : 'border-green-600'} pl-3 py-2 ${isToday ? 'bg-red-50/70' : 'bg-green-50/70'} rounded-r-lg shadow-sm flex justify-between items-center flex-wrap">
                                  <h4 class="font-bold text-base text-gray-800 w-full sm:w-auto">
                                      📅 NGÀY ${formattedDate}
@@ -1165,16 +1042,13 @@
                                  ${groupStatusText}
                              </div>
                              <ul class="space-y-1 mt-2 mb-4">`;
-                                                    
-            companiesOnDate.forEach((company) => {
+                                                                companiesOnDate.forEach((company) => {
                 const { completed: isCompleted, id: invoiceId, name: invoiceName, link: invoiceLink, createdAt } = company;
-                const completionIcon = isCompleted 
+                const completionIcon = isCompleted
                     ? `<svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>`
                     : `<svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-                                
-                const timeCreated = createdAt ? ` (${timeAgo(createdAt)})` : '';
-                                
-                html += `<li id="company-${invoiceId}" class="invoice-item flex items-center p-3 rounded-lg transition duration-100 ${isCompleted ? 'bg-green-50/40' : 'bg-white'} flex-col sm:flex-row sm:items-center">
+                                                const timeCreated = createdAt ? ` (${timeAgo(createdAt)})` : '';
+                                                html += `<li id="company-${invoiceId}" class="invoice-item flex items-center p-3 rounded-lg transition duration-100 ${isCompleted ? 'bg-green-50/40' : 'bg-white'} flex-col sm:flex-row sm:items-center">
                                  <button onclick="toggleCompletion('${pharmacyName}', '${invoiceId}')" aria-label="${isCompleted ? 'Đánh dấu chưa hoàn thành' : 'Đánh dấu hoàn thành'}"
                                          class="p-1 mr-3 rounded-full flex-shrink-0 transition duration-150 transform hover:scale-110 ${isCompleted ? 'bg-green-600 shadow-md' : 'bg-gray-200'} mb-2 sm:mb-0">
                                      ${completionIcon}
@@ -1213,40 +1087,32 @@
         });
         displayArea.innerHTML = html;
     }
-
     // Nâng cấp: Render RecycleBin với pagination
     function renderRecycleBinList(list, isSearchMode = false, showPagination = false) {
         const displayArea = document.getElementById('displayRecycleBin');
-                                        
-        if (list.length === 0) {
+                                                if (list.length === 0) {
             displayArea.innerHTML = `<div class="text-gray-500 text-center py-2">${isSearchMode ? 'Không tìm thấy hóa đơn phù hợp trong thùng rác.' : 'Thùng rác trống.'}</div>`;
             return;
         }
-
         const groupedByDate = list.reduce((acc, entry) => {
             const date = entry.date || 'Không rõ ngày';
             if (!acc[date]) { acc[date] = []; }
             acc[date].push(entry);
             return acc;
         }, {});
-
         let html = isSearchMode ? '' : `<div class="p-2 text-sm font-bold text-gray-700 border-b border-gray-200 mb-4">Tổng cộng: ${list.length} Hóa đơn đã xóa</div>`;
         const sortedDates = Object.keys(groupedByDate).sort().reverse();
-
         sortedDates.forEach(dateKey => {
             const companiesOnDate = groupedByDate[dateKey];
             const formattedDate = formatDate(dateKey);
-
             html += `<div class="mt-4 border-l-4 border-red-600 pl-3 py-2 bg-red-50/70 rounded-r-lg shadow-sm">
                                  <h4 class="font-bold text-base text-gray-800">📅 NGÀY ${formattedDate}</h4>
                              </div>
                              <ul class="space-y-1 mt-2 mb-4">`;
-                                                    
-            companiesOnDate.forEach((company) => {
+                                                                companiesOnDate.forEach((company) => {
                 const { id: invoiceId, name: invoiceName, link: invoiceLink, deletedAt, pharmacy } = company;
                 const timeDeleted = deletedAt ? ` (Xóa ${timeAgo(deletedAt)})` : '';
-                                
-                html += `<li id="company-${invoiceId}" class="invoice-item flex items-center p-3 rounded-lg transition duration-100 bg-white flex-col sm:flex-row sm:items-center">
+                                                html += `<li id="company-${invoiceId}" class="invoice-item flex items-center p-3 rounded-lg transition duration-100 bg-white flex-col sm:flex-row sm:items-center">
                                  <span class="flex-grow text-gray-700 font-semibold flex items-center text-base w-full sm:w-auto mb-2 sm:mb-0">
                                      📄 ${invoiceName} <span class="text-xs text-gray-400 ml-2 block sm:inline">${timeDeleted}</span>
                                      ${invoiceLink ? `
@@ -1281,11 +1147,9 @@
         });
         displayArea.innerHTML = html;
     }
-
     function renderUncompletedOverview() {
         const container = document.getElementById('uncompletedOverviewContainer');
         let allUncompleted = [];
-
         Object.keys(PHARMACY_MAP).forEach(pharmacyName => {
             if (pharmacyName === 'RecycleBin') return;
             const list = currentInvoiceLists[pharmacyName] || [];
@@ -1294,31 +1158,25 @@
                 allUncompleted.push({ ...item, pharmacy: pharmacyName });
             });
         });
-
         if (allUncompleted.length === 0) {
             container.innerHTML = `<div class="text-center text-gray-500 py-6">🎉 Tuyệt vời! Không có hóa đơn nào cần xử lý.</div>`;
             return;
         }
-
         allUncompleted.sort((a, b) => {
             const timeA = a.createdAt ? a.createdAt.toDate().getTime() : 0;
             const timeB = b.createdAt ? b.createdAt.toDate().getTime() : 0;
             return timeA - timeB;
         });
-
         let html = `<ul class="space-y-1">`;
         const uncompletedIcon = `<svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`;
-
         allUncompleted.forEach(invoice => {
             const invoiceDate = new Date(invoice.date + 'T00:00:00');
             const dateDiffMs = Date.now() - invoiceDate.getTime();
             const daysOld = Math.floor(dateDiffMs / ONE_DAY_MS);
             const timeElapsed = timeAgo(invoice.createdAt);
-
             let statusClass = 'text-gray-700';
             let statusEmoji = '⚠️';
             let badgeClass = 'bg-gray-100 text-gray-700';
-
             if (daysOld >= 5) {
                 statusClass = 'text-red-700 font-extrabold';
                 statusEmoji = '🚨';
@@ -1328,7 +1186,6 @@
                 statusEmoji = '🟠';
                 badgeClass = 'bg-orange-100 text-orange-700';
             }
-
             // Nâng cấp: Thay vì togglePharmacy, gọi hàm showInvoiceDetailModal (CẬP NHẬT)
             // Chuyển Timestamp thành milliseconds để stringify
             const simpleInvoice = {
@@ -1338,16 +1195,14 @@
                 link: invoice.link,
                 pharmacy: invoice.pharmacy,
                 // Chuyển Timestamp thành milliseconds để stringify
-                createdAt: invoice.createdAt ? invoice.createdAt.toDate().getTime() : null 
-            };
+                createdAt: invoice.createdAt ? invoice.createdAt.toDate().getTime() : null
+             };
             // Thay thế " bằng ' để không phá vỡ onclick attribute
             const invoiceDataString = JSON.stringify(simpleInvoice).replace(/"/g, "'");
-
             const actionButton = `<button onclick="showInvoiceDetailModal(${invoiceDataString})"
                                     class="text-blue-500 hover:text-blue-700 font-semibold transition duration-150 text-xs px-2 py-1 bg-blue-50 rounded-md">
                                     Xem chi tiết
                                 </button>`;
-
             html += `
                 <li class="p-2 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white hover:bg-red-50 transition duration-100 rounded-md shadow-xs">
                     <button onclick="toggleCompletion('${invoice.pharmacy}', '${invoice.id}')"
@@ -1376,25 +1231,21 @@
         html += `</ul>`;
         container.innerHTML = html;
     }
-
     // Nâng cấp: PWA service worker registration (cơ bản cho offline)
     // Đã xóa bỏ phần đăng ký service worker dùng data: URL vì không được hỗ trợ và gây lỗi.
     /*
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('data:text/javascript;base64,Ly8gU2VydmljZSBXb3JrZXIgY2FzZSBmb3Igb2ZmbGluZQp2YXIgQ0FDSEVfTkFNRT0naG9hLWRvbi1tYW5hZ2VyJzsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZSkgewp    ZS53YWl0VW50aWwoZT5lLnNraXBBd2FpdGluZygpOwpjb25zdCBjYWNoZSA9IGF3YWl0IGNhY2hlcy5vcGVuKENBQ0hfTkFNRSwgeyBjYWNoZU5hbWU6IENBQ0hfTkFNRSwgc3RhbGV7IGR1cmF0aW9uOiAxNDAwMDY0MDAwfX0pOwphd2FpdCBjYWNoZS5hZGRBbGwoWyIvIl0pOwpzZWxmLnNraXBBd2FpdGluZygpOwp9KTsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1jsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdmZXRjaCcsIGZ1bmN0aW9uKGV) {');
+            navigator.serviceWorker.register('data:text/javascript;base64,Ly8gU2VydmljZSBXb3JrZXIgY2FzZSBmb3Igb2ZmbGluZQp2YXIgQ0FDSEVfTkFNRT0naG9hLWRvbi1tYW5hZ2VyJzsKc2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZnVuY3Rpb24oZSkgewp    ZS53YWl0VW50aWwoZT5lLnNraXBBd2FpdGluZygpOwpjb25zdCBjYWNoZSA9IGF3YWl0IGNhY2hlcy5vcGVuKENBQ0hfTkFNRSwgeyBjYWNoZU5BTUeE=');
         });
     }
     */
-
     function initApp() {
         document.getElementById('loadingIndicator').classList.add('hidden');
         document.getElementById('app-container').classList.remove('opacity-0');
-                
-        // Đã xóa bỏ setTimeout(() => { togglePharmacy('NT Tuệ Thiện', 'TueThien'); }, 100);
+                        // Đã xóa bỏ setTimeout(() => { togglePharmacy('NT Tuệ Thiện', 'TueThien'); }, 100);
         // Giờ đây trang sẽ không tự động mở tab 'NT Tuệ Thiện' nữa.
         // Phần Hóa đơn chưa hoàn thành sẽ là trọng tâm chính.
-
         // Vẫn tải dữ liệu cho cả hai nhà thuốc trong nền
         // để 'Hóa đơn chưa hoàn thành' có thể hiển thị chính xác
         Object.keys(PHARMACY_MAP).forEach(key => {
@@ -1403,9 +1254,7 @@
             }
         });
     }
-
     document.addEventListener('DOMContentLoaded', initApp);
 </script>
 </body>
 </html>
-
