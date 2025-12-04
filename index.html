@@ -7,7 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-    <link rel="manifest" href="data:application/manifest+json,{'name': 'Quản Lý Hóa Đơn','short_name': 'Hóa Đơn','start_url': '.','display': 'standalone','background_color': '#ffffff','theme_color': '#10b981','icons': [{'src': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiMxMGI5ODEiLz4KPHBhdGggZD0iTTEyIDhDNi4zIDggMiAxMi4zIDIgMTZTMi4zIDI0IDYgMjRIMTRDMjEuNyAyNCAyNCAyMC43IDI0IDE2UzIxLjcgMTYgMTYgMTZDNjMuNyAxNiAyIDExLjcgMiA2UzYuMyA4IDEyIDh6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K', 'sizes': '24x24', 'type': 'image/svg+xml'}]}">
+    <script src="https://unpkg.com/xlsx/dist/xlsx.full.min.js"></script>
+    <link rel="manifest" href="data:application/manifest+json,{'name': 'Quản Lý Hóa Đơn','short_name': 'Hóa Đơn','start_url': '.','display': 'standalone','background_color': '#ffffff','theme_color': '#10b981','icons': [{'src': 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTIiIGZpbGw9IiMxMGI5ODEiLz4KPHBhdGggZD0iTTEyIDhDNi4zIDggMiAxMi4zIDIgMTZTMi4zIDI0IDYgMjRIMTRDMjEuNyAyNCAyNCAyMC43IDI0IDE2UzIxLjcgMTYgMTYgMTZDNjMuNyAxNiAyIDExLjcgMiA2UzYuMyA4IDEyIDh6IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zy4uLi4=', 'sizes': '24x24', 'type': 'image/svg+xml'}]}">
     <style>
         /* CSS gốc và các nâng cấp Dark Mode, Responsive Design được giữ nguyên */
         #app-container { max-width: 900px; margin: 0 auto; padding: 1rem; border-radius: 1.5rem; background-color: #ffffff; }
@@ -67,14 +68,25 @@
     </div>
     <div id="app-container" class="bg-white shadow-2xl rounded-2xl p-4 md:p-8 opacity-0 transition duration-500">
         <h1 class="text-2xl md:text-3xl font-extrabold text-center text-green-700 dark:text-green-400 mb-6 border-b-2 pb-2">QUẢN LÝ HÓA ĐƠN </h1>
+        
         <div class="mb-6 p-4 bg-red-50 dark:bg-red-900 border border-red-200 dark:border-red-700 rounded-xl shadow-md">
-            <h2 class="text-lg md:text-xl font-bold text-red-700 dark:text-red-400 mb-3 flex items-center border-b pb-2">
-                🔴 HÓA ĐƠN CHƯA HOÀN THÀNH
+            <h2 class="text-lg md:text-xl font-bold text-red-700 dark:text-red-400 mb-3 flex items-center justify-between border-b pb-2">
+                <span class="flex items-center">
+                     🔴 HÓA ĐƠN CHƯA HOÀN THÀNH
+                </span>
+                <button onclick="exportUncompletedToExcel()" aria-label="Xuất file Excel hóa đơn chưa hoàn thành"
+                        class="bg-red-600 text-white px-3 py-1 text-sm font-semibold rounded-lg hover:bg-red-700 transition duration-150 transform hover:scale-105 shadow-md">
+                    <span class="hidden sm:inline">Xuất Excel</span>
+                    <svg class="w-5 h-5 inline sm:ml-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M2.273 4.273L4 6H20a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V6c0-.882.5-1.637 1.273-1.727zM6 10v6h2v-6H6zm4 0v6h2v-6h-2zm4 0v6h2v-6h-2z" />
+                    </svg>
+                </button>
             </h2>
             <div id="uncompletedOverviewContainer" class="p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-100 dark:border-gray-600 overflow-y-auto modern-scroll uncompleted-overview">
                 <div class="text-center text-gray-500 py-6">Đang tải danh sách hóa đơn chưa hoàn thành...</div>
             </div>
         </div>
+        
         <div class="flex tab-buttons justify-center border-b-2 border-gray-200 dark:border-gray-700 mb-6">
             <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien')" aria-label="Ẩn/Hiện NT Tuệ Thiện" class="flex-1 py-3 px-2 text-sm font-semibold focus:outline-none transition duration-150 border-transparent hover:bg-gray-100 dark:hover:bg-gray-700 rounded-t-lg tab-collapsed">
                 <h3 class="font-bold text-base md:text-lg text-green-800 dark:text-green-300 text-center flex items-center justify-center">
@@ -330,7 +342,7 @@
     }
     function timeAgo(timestamp) {
         if (!timestamp) return 'Không rõ';
-        const date = timestamp.toDate();
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
         let interval = seconds / 31536000;
         if (interval > 1) { return Math.floor(interval) + " năm trước"; }
@@ -467,7 +479,7 @@
         document.getElementById('detailInvoiceName').textContent = invoice.name;
         document.getElementById('detailPharmacyName').textContent = invoice.pharmacy;
         document.getElementById('detailInvoiceDate').textContent = formatDate(invoice.date);
-        document.getElementById('detailCreatedAt').textContent = invoice.createdAt ? new Date(invoice.createdAt).toLocaleString() : 'Không rõ';
+        document.getElementById('detailCreatedAt').textContent = invoice.createdAt ? new Date(invoice.createdAt.toDate()).toLocaleString() : 'Không rõ';
         const linkContainer = document.getElementById('detailInvoiceLink');
         linkContainer.innerHTML = '';
         if (invoice.link && isValidUrl(invoice.link)) {
@@ -1279,6 +1291,78 @@
         container.innerHTML = html;
     }
     
+    // =================================================================================
+    // 5. NÂNG CẤP: XUẤT EXCEL
+    // =================================================================================
+    function exportUncompletedToExcel() {
+        // Lấy dữ liệu từ AppStore
+        const data = AppStore['Uncompleted'].list;
+        
+        if (data.length === 0) {
+            showToast('Không có hóa đơn chưa hoàn thành để xuất.', 'info');
+            return;
+        }
+
+        // 1. Chuẩn bị dữ liệu (Headers và Rows)
+        const headers = [
+            "STT", 
+            "Tên Hóa Đơn", 
+            "Nhà Thuốc", 
+            "Ngày Lập Hóa Đơn", 
+            "Ngày Tạo (Hệ thống)", 
+            "Thời Gian Chưa Xử Lý", 
+            "Liên Kết Đính Kèm"
+        ];
+        
+        const exportData = [headers];
+        
+        data.forEach((invoice, index) => {
+            const timeElapsed = timeAgo(invoice.createdAt);
+            // Chuyển đổi Firestore Timestamp sang chuỗi định dạng
+            const createdAtTime = invoice.createdAt ? new Date(invoice.createdAt.toDate()).toLocaleString('vi-VN') : 'Không rõ';
+            
+            exportData.push([
+                index + 1,
+                invoice.name,
+                invoice.pharmacy,
+                formatDate(invoice.date),
+                createdAtTime,
+                timeElapsed,
+                invoice.link || ''
+            ]);
+        });
+
+        // 2. Tạo Workbook và Sheet bằng SheetJS (xlsx)
+        try {
+            const ws = XLSX.utils.aoa_to_sheet(exportData);
+            
+            // Định dạng cột (Tự động chiều rộng)
+            const wscols = [
+                {wch: 5},   // STT
+                {wch: 35},  // Tên Hóa Đơn
+                {wch: 15},  // Nhà Thuốc
+                {wch: 18},  // Ngày Lập
+                {wch: 25},  // Ngày Tạo
+                {wch: 20},  // Thời gian chưa xử lý
+                {wch: 40}   // Link
+            ];
+            ws['!cols'] = wscols;
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "HD_ChuaHoanThanh");
+
+            // 3. Xuất file
+            const today = getCurrentDateKey();
+            const filename = `HD_ChuaHoanThanh_${today}.xlsx`;
+            XLSX.writeFile(wb, filename);
+
+            showToast(`Đã xuất file "${filename}" thành công!`, 'success');
+        } catch (error) {
+            console.error("Lỗi khi xuất file Excel:", error);
+            showToast('Lỗi: Không thể xuất file Excel. Vui lòng kiểm tra console.', 'error');
+        }
+    }
+
     // =================================================================================
     // KHỞI TẠO APP
     // =================================================================================
