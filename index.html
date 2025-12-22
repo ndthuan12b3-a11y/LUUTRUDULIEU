@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; transition: all 0.3s ease; }
@@ -26,8 +27,6 @@
         .invoice-card:hover { border-color: var(--main-color); transform: translateY(-2px); box-shadow: 0 8px 15px -3px rgba(0,0,0,0.04); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        /* Hiệu ứng cho nút dọn dẹp */
         .cleanup-btn { animation: slideIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
         .pulse-orange { animation: pulse 2s infinite; }
@@ -38,6 +37,7 @@
     <div id="loadingIndicator" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
         <div class="w-12 h-12 border-[3px] border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
+    
     <div id="toastContainer" class="fixed top-6 right-6 z-[310] space-y-3 w-72"></div>
 
     <nav class="app-gradient pt-12 pb-24 px-4 shadow-lg transition-all duration-500">
@@ -67,10 +67,15 @@
         </div>
     </main>
 
-    <div class="fixed bottom-8 right-8 flex flex-col gap-4">
+    <div class="fixed bottom-8 right-8 flex flex-col gap-4 items-end">
+        <button onclick="exportUncompletedToExcel()" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-emerald-50 transition-all group" title="Xuất Excel NCC chưa xong">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
+        </button>
+
         <button onclick="toggleRecycleBinModal()" class="w-14 h-14 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-xl flex items-center justify-center hover:text-red-500 transition-all">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" stroke-width="2"/></svg>
         </button>
+
         <button onclick="openAddForm()" class="w-16 h-16 bg-theme text-white rounded-[1.5rem] shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round"/></svg>
         </button>
@@ -157,7 +162,6 @@
             let q = db.collection(COLL).where('pharmacy', '==', currentPharmacy).where('isDeleted', '==', false).orderBy('date', 'desc');
             if (currentFilter === 'completed') q = q.where('completed', '==', true);
             if (currentFilter === 'uncompleted') q = q.where('completed', '==', false);
-            
             unsub = q.onSnapshot(snap => {
                 invoices = [];
                 snap.forEach(doc => invoices.push({ id: doc.id, ...doc.data() }));
@@ -171,10 +175,8 @@
                 display.innerHTML = `<div class="py-20 text-center text-slate-300 font-bold text-xs uppercase italic tracking-widest">Trống</div>`;
                 return;
             }
-
             let html = '';
             const groups = data.reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});
-            
             Object.keys(groups).sort().reverse().forEach(date => {
                 const d = new Date(date);
                 const dayOfWeek = d.toLocaleDateString('vi-VN', { weekday: 'long' });
@@ -182,7 +184,6 @@
                 const totalInDay = groups[date].length;
                 const completedInDay = groups[date].filter(i => i.completed).length;
                 const isAllDone = totalInDay > 0 && totalInDay === completedInDay;
-
                 html += `
                     <div class="mb-12 relative">
                         <div class="date-sticky flex items-center justify-between py-4">
@@ -196,19 +197,12 @@
                                     <span class="text-lg font-800 text-slate-800">${dayOfWeek}</span>
                                 </div>
                             </div>
-                            
                             <div class="flex items-center gap-3">
                                 <span class="text-[10px] font-bold px-3 py-1 bg-slate-100 rounded-full text-slate-500">${completedInDay}/${totalInDay} Xong</span>
-                                ${isAllDone ? `
-                                    <button onclick="cleanupDay('${date}')" class="cleanup-btn flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-tighter shadow-lg pulse-orange">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="3"/></svg>
-                                        Dọn dẹp nhanh
-                                    </button>
-                                ` : ''}
+                                ${isAllDone ? `<button onclick="cleanupDay('${date}')" class="cleanup-btn flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase tracking-tighter shadow-lg pulse-orange"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="3"/></svg>Dọn dẹp nhanh</button>` : ''}
                             </div>
                         </div>
                         <div class="mt-4 ml-7 pl-8 border-l-2 border-dashed border-slate-100 space-y-4">`;
-
                 groups[date].forEach(item => {
                     html += `
                         <div class="invoice-card fade-in flex items-center justify-between p-5 rounded-[1.5rem]">
@@ -233,30 +227,42 @@
             display.innerHTML = html;
         }
 
-        // Hàm Dọn dẹp hàng loạt
-        async function cleanupDay(date) {
-            if (!confirm(`Chuyển tất cả hóa đơn ngày ${date} vào thùng rác?`)) return;
-            
-            const batch = db.batch();
-            const itemsToCleanup = invoices.filter(i => i.date === date);
-            
-            itemsToCleanup.forEach(item => {
-                const ref = db.collection(COLL).doc(item.id);
-                batch.update(ref, { 
-                    isDeleted: true, 
-                    deletedAt: firebase.firestore.FieldValue.serverTimestamp() 
-                });
-            });
-
-            try {
-                await batch.commit();
-                showToast(`Đã dọn dẹp ${itemsToCleanup.length} hóa đơn`, "warning");
-            } catch (e) {
-                showToast("Lỗi: " + e.message, "error");
+        // HÀM XUẤT EXCEL KHÔNG LỖI FONT
+        function exportUncompletedToExcel() {
+            const uncompletedData = invoices.filter(item => !item.completed);
+            if (uncompletedData.length === 0) {
+                showToast("Không có hóa đơn chưa xong!", "warning");
+                return;
             }
+            const excelRows = uncompletedData.map((item, index) => ({
+                "STT": index + 1,
+                "Ngày Nhận": item.date,
+                "Nhà Cung Cấp": item.name,
+                "Cửa Hàng": item.pharmacy,
+                "Trạng Thái": "Chưa hoàn thành",
+                "Link Tài Liệu": item.link || ""
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(excelRows);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Chua_Hoan_Thanh");
+            worksheet["!cols"] = [{ wch: 6 }, { wch: 15 }, { wch: 40 }, { wch: 20 }, { wch: 20 }, { wch: 50 }];
+            const today = new Date().toISOString().split('T')[0];
+            const fileName = `NCC_CHUA_XONG_${currentPharmacy.replace(/\s/g, '_')}_${today}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            showToast("Đã xuất file Excel!");
         }
 
         // Firebase Actions
+        async function cleanupDay(date) {
+            if (!confirm(`Dọn dẹp ngày ${date}?`)) return;
+            const batch = db.batch();
+            invoices.filter(i => i.date === date).forEach(item => {
+                batch.update(db.collection(COLL).doc(item.id), { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });
+            });
+            await batch.commit();
+            showToast("Đã dọn dẹp", "warning");
+        }
+
         async function toggleStatus(id, cur) { await db.collection(COLL).doc(id).update({ completed: !cur }); }
         function openAddForm() {
             document.getElementById('formId').value = '';
@@ -280,12 +286,9 @@
             const id = document.getElementById('formId').value, name = document.getElementById('formName').value.trim(), date = document.getElementById('formDate').value, link = document.getElementById('formLink').value.trim();
             if (!name || !date) return showToast("Điền đủ tên & ngày", "error");
             const data = { name, date, link, pharmacy: currentPharmacy };
-            try {
-                if (id) await db.collection(COLL).doc(id).update(data);
-                else await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                closeForm();
-                showToast("Đã lưu!");
-            } catch (e) { showToast(e.message, "error"); }
+            if (id) await db.collection(COLL).doc(id).update(data);
+            else await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            closeForm(); showToast("Đã lưu!");
         }
         function confirmDelete(id) {
             if(confirm("Xóa hóa đơn này?")) {
@@ -305,10 +308,7 @@
                 let html = '';
                 snap.forEach(doc => {
                     const item = doc.data();
-                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div class="max-w-[150px]"><p class="text-sm font-bold text-slate-700 truncate">${item.name}</p></div>
-                        <div class="flex gap-2"><button onclick="restoreItem('${doc.id}')" class="text-blue-600 text-[10px] font-bold">KHÔI PHỤC</button>
-                        <button onclick="hardDelete('${doc.id}')" class="text-red-400">XÓA</button></div></div>`;
+                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100"><div class="max-w-[150px]"><p class="text-sm font-bold text-slate-700 truncate">${item.name}</p></div><div class="flex gap-2"><button onclick="restoreItem('${doc.id}')" class="text-blue-600 text-[10px] font-bold">KHÔI PHỤC</button><button onclick="hardDelete('${doc.id}')" class="text-red-400">XÓA</button></div></div>`;
                 });
                 area.innerHTML = html;
             });
