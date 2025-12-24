@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Hóa Đơn Pro - Fixed Version</title>
+    <title>Quản Lý Hóa Đơn Pro - 2025 Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
@@ -16,7 +16,6 @@
         .app-gradient { background: var(--main-bg); }
         .text-theme { color: var(--main-color); }
         .bg-theme { background-color: var(--main-color); }
-        .border-theme { border-color: var(--main-color); }
         .date-sticky { position: sticky; top: -1px; z-index: 20; background: rgba(248, 250, 252, 0.98); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(226, 232, 240, 0.5); }
         .date-badge { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; min-width: 60px; }
         .date-badge-top { background: var(--main-color); color: white; font-size: 10px; font-weight: 800; padding: 2px 0; text-align: center; text-transform: uppercase; }
@@ -31,7 +30,7 @@
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
     </style>
 </head>
-<body class="min-h-screen pb-12 theme-blue">
+<body class="min-h-screen pb-24 theme-blue">
     <div id="loadingIndicator" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
         <div class="w-12 h-12 border-[3px] border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
     </div>
@@ -66,7 +65,7 @@
     </main>
 
     <div class="fixed bottom-8 right-8 flex flex-col gap-4 items-end">
-        <button onclick="exportUncompletedToExcel()" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-emerald-50 transition-all" title="Xuất báo cáo trễ hạn">
+        <button onclick="exportUncompletedToExcel()" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-emerald-50 transition-all">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
         </button>
         <button onclick="toggleRecycleBinModal()" class="w-14 h-14 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-xl flex items-center justify-center hover:text-red-500 transition-all">
@@ -113,7 +112,6 @@
     </div>
 
     <script>
-        // CONFIG FIREBASE
         const firebaseConfig = {
             apiKey: "AIzaSyC737M2y1nwrGP48rEQ8dVhpV4DwUkysg",
             authDomain: "duanluutrunew.firebaseapp.com",
@@ -139,7 +137,7 @@
 
         function togglePharmacy(name, id) {
             currentPharmacy = name;
-            document.body.className = id === 'TueThien' ? "min-h-screen pb-12 theme-blue" : "min-h-screen pb-12 theme-emerald";
+            document.body.className = id === 'TueThien' ? "min-h-screen pb-24 theme-blue" : "min-h-screen pb-24 theme-emerald";
             document.getElementById('tabTueThien').classList.toggle('active', id === 'TueThien');
             document.getElementById('tabHungThinh').classList.toggle('active', id === 'HungThinh');
             loadData();
@@ -174,11 +172,7 @@
                 return;
             }
 
-            // Lấy ngày hiện tại chuẩn YYYY-MM-DD theo múi giờ địa phương
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-            const todayTime = new Date(todayStr).getTime();
-
+            const todayStr = new Date().toLocaleDateString('en-CA');
             const groups = data.reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});
             let html = '';
 
@@ -191,13 +185,12 @@
                 const completedInDay = items.filter(i => i.completed).length;
                 const isAllDone = totalInDay > 0 && totalInDay === completedInDay;
 
-                // FIX LỖI NHẬN DIỆN NGÀY
                 let delayLabel = '';
                 if (!isAllDone) {
                     if (dateStr === todayStr) {
                         delayLabel = `<span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md ml-2 tracking-tighter">HÔM NAY</span>`;
-                    } else if (new Date(dateStr).getTime() < todayTime) {
-                        const diffDays = Math.floor((todayTime - new Date(dateStr).getTime()) / (1000 * 60 * 60 * 24));
+                    } else if (dateStr < todayStr) {
+                        const diffDays = Math.floor((new Date(todayStr) - new Date(dateStr)) / (1000 * 60 * 60 * 24));
                         delayLabel = `<span class="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded-md ml-2 animate-pulse tracking-tighter">TRỄ ${diffDays} NGÀY</span>`;
                     }
                 }
@@ -220,11 +213,7 @@
                             </div>
                             <div class="flex items-center gap-3">
                                 <span class="text-[10px] font-bold px-3 py-1 bg-slate-100 rounded-full text-slate-500">${completedInDay}/${totalInDay} Xong</span>
-                                ${isAllDone ? `
-                                    <button onclick="cleanupDay('${dateStr}')" class="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg pulse-orange">
-                                        Dọn dẹp
-                                    </button>
-                                ` : ''}
+                                ${isAllDone ? `<button onclick="cleanupDay('${dateStr}')" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg pulse-orange">Dọn dẹp</button>` : ''}
                             </div>
                         </div>
                         <div class="mt-4 ml-7 pl-8 border-l-2 border-dashed border-slate-100 space-y-4">`;
@@ -242,6 +231,9 @@
                                 </div>
                             </div>
                             <div class="flex items-center gap-1">
+                                <button onclick="transferPharmacy('${item.id}', '${item.pharmacy}')" class="p-2.5 text-purple-500 hover:bg-purple-50 rounded-xl transition-all" title="Chuyển nhà thuốc">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
                                 ${item.link ? `<a href="${item.link}" target="_blank" class="p-2.5 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757" stroke-width="2.5"/></svg></a>` : ''}
                                 <button onclick="openEditForm('${item.id}')" class="p-2.5 text-blue-500 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" stroke-width="2.5"/></svg></button>
                                 <button onclick="confirmDelete('${item.id}')" class="p-2.5 text-red-400 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2.5"/></svg></button>
@@ -251,6 +243,14 @@
                 html += `</div></div>`;
             });
             display.innerHTML = html;
+        }
+
+        async function transferPharmacy(id, currentName) {
+            const target = currentName === 'NT Tuệ Thiện' ? 'NT Hưng Thịnh' : 'NT Tuệ Thiện';
+            if(confirm(`Chuyển hóa đơn này sang ${target}?`)) {
+                await db.collection(COLL).doc(id).update({ pharmacy: target });
+                showToast(`Đã chuyển sang ${target}`, "success");
+            }
         }
 
         async function cleanupDay(date) {
@@ -268,12 +268,7 @@
         function openAddForm() {
             document.getElementById('formId').value = '';
             document.getElementById('formName').value = '';
-            
-            // Lấy ngày hiện tại chuẩn VN
-            const now = new Date();
-            const today = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-            
-            document.getElementById('formDate').value = today;
+            document.getElementById('formDate').value = new Date().toLocaleDateString('en-CA');
             document.getElementById('formLink').value = '';
             document.getElementById('modalTitle').innerText = "Thêm hóa đơn";
             document.getElementById('modalOverlay').classList.replace('hidden', 'flex');
@@ -296,22 +291,14 @@
                   name = document.getElementById('formName').value.trim(), 
                   date = document.getElementById('formDate').value, 
                   link = document.getElementById('formLink').value.trim();
-            
             if (!name || !date) return showToast("Vui lòng điền đủ thông tin!", "error");
-            
             const data = { name, date, link, pharmacy: currentPharmacy };
             if (id) {
                 await db.collection(COLL).doc(id).update(data);
             } else {
-                await db.collection(COLL).add({ 
-                    ...data, 
-                    completed: false, 
-                    isDeleted: false, 
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
-                });
+                await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
             }
-            closeForm(); 
-            showToast("Đã lưu dữ liệu!");
+            closeForm(); showToast("Đã lưu dữ liệu!");
         }
 
         function confirmDelete(id) {
@@ -323,77 +310,46 @@
 
         function toggleRecycleBinModal() {
             const m = document.getElementById('recycleModal');
-            if (m.classList.contains('hidden')) { 
-                m.classList.replace('hidden', 'flex'); 
-                loadRecycleData(); 
-            } else {
-                m.classList.replace('flex', 'hidden');
-            }
+            if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); loadRecycleData(); }
+            else { m.classList.replace('flex', 'hidden'); }
         }
 
         function loadRecycleData() {
             const area = document.getElementById('recycleDisplay');
             db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(20).onSnapshot(snap => {
-                if (snap.empty) { 
-                    area.innerHTML = '<p class="text-center py-10 text-slate-300 font-bold uppercase text-[10px]">Thùng rác trống</p>'; 
-                    return; 
-                }
+                if (snap.empty) { area.innerHTML = '<p class="text-center py-10 text-slate-300 font-bold uppercase text-[10px]">Trống</p>'; return; }
                 let html = '';
                 snap.forEach(doc => {
                     const item = doc.data();
-                    html += `
-                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <div class="max-w-[150px]">
-                                <p class="text-sm font-bold text-slate-700 truncate">${item.name}</p>
-                                <p class="text-[9px] text-slate-400">${item.date}</p>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="restoreItem('${doc.id}')" class="text-blue-600 text-[10px] font-bold hover:underline">KHÔI PHỤC</button>
-                                <button onclick="hardDelete('${doc.id}')" class="text-red-400 hover:text-red-600">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2"/></svg>
-                                </button>
-                            </div>
-                        </div>`;
+                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                        <div class="max-w-[150px]"><p class="text-sm font-bold text-slate-700 truncate">${item.name}</p><p class="text-[9px] text-slate-400">${item.date}</p></div>
+                        <div class="flex gap-2">
+                            <button onclick="restoreItem('${doc.id}')" class="text-blue-600 text-[10px] font-bold">KHÔI PHỤC</button>
+                            <button onclick="hardDelete('${doc.id}')" class="text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2"/></svg></button>
+                        </div>
+                    </div>`;
                 });
                 area.innerHTML = html;
             });
         }
 
         async function restoreItem(id) { await db.collection(COLL).doc(id).update({ isDeleted: false }); showToast("Đã khôi phục"); }
-        async function hardDelete(id) { if(confirm("Xóa vĩnh viễn không thể khôi phục?")) await db.collection(COLL).doc(id).delete(); }
+        async function hardDelete(id) { if(confirm("Xóa vĩnh viễn?")) await db.collection(COLL).doc(id).delete(); }
         
-        function handleSearch(v) { 
-            const filtered = invoices.filter(i => i.name.toLowerCase().includes(v.toLowerCase()));
-            renderInvoices(filtered); 
-        }
+        function handleSearch(v) { renderInvoices(invoices.filter(i => i.name.toLowerCase().includes(v.toLowerCase()))); }
 
         function exportUncompletedToExcel() {
             const uncompletedData = invoices.filter(item => !item.completed);
             if (!uncompletedData.length) return showToast("Không có mục chưa xong!", "warning");
-
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')}`;
-            const todayTime = new Date(todayStr).getTime();
-
-            const rows = uncompletedData.map((item, idx) => {
-                const itemTime = new Date(item.date).getTime();
-                let delay = "Hôm nay";
-                if (item.date < todayStr) {
-                    delay = `Trễ ${Math.floor((todayTime - itemTime)/(1000*60*60*24))} ngày`;
-                } else if (item.date > todayStr) {
-                    delay = "Chưa đến hạn";
-                }
-
-                return {
-                    "STT": idx + 1,
-                    "Ngày Nhận": item.date,
-                    "Tình Trạng": delay,
-                    "Nhà Cung Cấp": item.name,
-                    "Cửa Hàng": item.pharmacy,
-                    "Link Tài Liệu": item.link || ""
-                };
-            });
-
+            const todayStr = new Date().toLocaleDateString('en-CA');
+            const rows = uncompletedData.map((item, idx) => ({
+                "STT": idx + 1,
+                "Ngày Nhận": item.date,
+                "Tình Trạng": item.date < todayStr ? "Trễ hạn" : "Đúng hạn",
+                "Nhà Cung Cấp": item.name,
+                "Cửa Hàng": item.pharmacy,
+                "Link": item.link || ""
+            }));
             const ws = XLSX.utils.json_to_sheet(rows);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Bao_Cao");
