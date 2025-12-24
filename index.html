@@ -3,16 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản Lý Hóa Đơn</title>
+    <title>Quản Lý Hóa Đơn </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; transition: all 0.3s ease; }
-        .theme-blue { --main-color: #2563eb; --main-bg: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); --soft-bg: #eff6ff; }
-        .theme-emerald { --main-color: #059669; --main-bg: linear-gradient(135deg, #064e3b 0%, #059669 100%); --soft-bg: #ecfdf5; }
+        body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b; transition: all 0.4s ease; }
+        .theme-blue { --main-color: #2563eb; --main-bg: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%); }
+        .theme-emerald { --main-color: #059669; --main-bg: linear-gradient(135deg, #064e3b 0%, #059669 100%); }
+        .theme-pink { --main-color: #db2777; --main-bg: linear-gradient(135deg, #9d174d 0%, #db2777 100%); }
         .app-gradient { background: var(--main-bg); }
         .text-theme { color: var(--main-color); }
         .bg-theme { background-color: var(--main-color); }
@@ -20,82 +21,89 @@
         .date-badge { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-radius: 12px; overflow: hidden; min-width: 60px; }
         .date-badge-top { background: var(--main-color); color: white; font-size: 10px; font-weight: 800; padding: 2px 0; text-align: center; text-transform: uppercase; }
         .date-badge-bottom { font-size: 20px; font-weight: 800; color: #1e293b; text-align: center; line-height: 1.2; padding: 4px 0; }
-        .tab-btn { font-size: 0.85rem; letter-spacing: 0.05em; font-weight: 800; border: 2px solid transparent; }
-        .tab-btn.active { background: white; color: var(--main-color); border-color: white; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); transform: scale(1.05); }
+        .tab-btn { font-size: 0.8rem; font-weight: 700; opacity: 0.6; color: white; }
+        .tab-btn.active { background: white; color: var(--main-color); border-radius: 12px; opacity: 1; transform: scale(1.05); }
         .invoice-card { border: 1px solid #f1f5f9; background: #ffffff; transition: all 0.2s ease; }
-        .invoice-card:hover { border-color: var(--main-color); transform: translateY(-2px); box-shadow: 0 8px 15px -3px rgba(0,0,0,0.04); }
+        .invoice-card:hover { border-color: var(--main-color); transform: translateY(-2px); }
         .fade-in { animation: fadeIn 0.4s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .pulse-orange { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(249, 115, 22, 0); } 100% { box-shadow: 0 0 0 0 rgba(249, 115, 22, 0); } }
     </style>
 </head>
 <body class="min-h-screen pb-24 theme-blue">
     <div id="loadingIndicator" class="fixed inset-0 z-[100] flex items-center justify-center bg-white">
-        <div class="w-12 h-12 border-[3px] border-slate-100 border-t-blue-600 rounded-full animate-spin"></div>
+        <div class="w-12 h-12 border-[3px] border-slate-100 border-t-current text-theme rounded-full animate-spin"></div>
     </div>
     
     <div id="toastContainer" class="fixed top-6 right-6 z-[310] space-y-3 w-72"></div>
 
-    <nav class="app-gradient pt-12 pb-24 px-4 shadow-lg">
+    <nav class="app-gradient pt-10 pb-24 px-4 shadow-lg">
         <div class="max-w-4xl mx-auto flex flex-col items-center">
-            <h1 class="text-3xl font-800 text-white mb-10 tracking-tighter italic uppercase drop-shadow-md">Quản Lý Hóa Đơn </h1>
-            <div class="w-full max-w-md bg-black/20 backdrop-blur-md p-2 rounded-2xl flex items-center border border-white/20">
-                <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien')" class="tab-btn flex-1 py-4 rounded-xl text-white/80 transition-all uppercase">NT Tuệ Thiện</button>
-                <button id="tabHungThinh" onclick="togglePharmacy('NT Hưng Thịnh', 'HungThinh')" class="tab-btn flex-1 py-4 rounded-xl text-white/80 transition-all uppercase">NT Hưng Thịnh</button>
+            <h1 class="text-2xl font-800 text-white mb-8 italic uppercase tracking-tighter">Hệ Thống Quản Lý Hóa Đơn</h1>
+            <div class="w-full max-w-xl bg-black/10 backdrop-blur-md p-1.5 rounded-2xl flex items-center border border-white/10">
+                <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien')" class="tab-btn flex-1 py-3 transition-all uppercase">Tuệ Thiện</button>
+                <button id="tabHungThinh" onclick="togglePharmacy('NT Hưng Thịnh', 'HungThinh')" class="tab-btn flex-1 py-3 transition-all uppercase">Hưng Thịnh</button>
+                <button id="tabPhucAn" onclick="togglePharmacy('NT Phúc An', 'PhucAn')" class="tab-btn flex-1 py-3 transition-all uppercase">Phúc An</button>
             </div>
         </div>
     </nav>
 
     <main class="max-w-3xl mx-auto px-4 -mt-12">
-        <div class="bg-white rounded-[2.5rem] shadow-2xl p-6 md:p-10 border border-slate-100">
-            <div class="flex flex-col md:flex-row gap-4 mb-10">
-                <div class="relative flex-1 group">
-                    <input type="text" id="mainSearch" oninput="handleSearch(this.value)" placeholder="Tìm đối tác..." class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-blue-500 focus:bg-white outline-none transition-all font-semibold text-sm">
+        <div class="bg-white rounded-[2rem] shadow-2xl p-6 md:p-8 border border-slate-100">
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <div class="relative flex-1">
+                    <input type="text" id="mainSearch" oninput="handleSearch(this.value)" placeholder="Tìm NCC..." class="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:bg-white focus:border-theme outline-none transition-all font-semibold text-sm">
                     <svg class="w-5 h-5 absolute left-4 top-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5"/></svg>
                 </div>
                 <div class="flex bg-slate-100 p-1 rounded-2xl">
-                    <button id="filterAll" onclick="changeFilter('all')" class="px-6 py-2.5 text-[10px] font-800 rounded-xl transition-all uppercase bg-slate-800 text-white shadow-md">Tất cả</button>
-                    <button id="filterUncompleted" onclick="changeFilter('uncompleted')" class="px-6 py-2.5 text-[10px] font-800 rounded-xl transition-all uppercase text-slate-500">Chưa xong</button>
-                    <button id="filterCompleted" onclick="changeFilter('completed')" class="px-6 py-2.5 text-[10px] font-800 rounded-xl transition-all uppercase text-slate-500">Đã xong</button>
+                    <button id="filterAll" onclick="changeFilter('all')" class="px-5 py-2 text-[10px] font-800 rounded-xl transition-all uppercase bg-slate-800 text-white shadow-md">Tất cả</button>
+                    <button id="filterUncompleted" onclick="changeFilter('uncompleted')" class="px-5 py-2 text-[10px] font-800 rounded-xl transition-all uppercase text-slate-500">Chưa xong</button>
                 </div>
             </div>
-            <div id="invoiceDisplay" class="min-h-[400px]"></div>
+            <div id="invoiceDisplay" class="min-h-[300px]"></div>
         </div>
     </main>
 
     <div class="fixed bottom-8 right-8 flex flex-col gap-4 items-end">
-        <button onclick="exportUncompletedToExcel()" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:bg-emerald-50 transition-all">
+        <button onclick="exportUncompletedToExcel()" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:scale-105 transition-all">
             <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2"/></svg>
         </button>
         <button onclick="toggleRecycleBinModal()" class="w-14 h-14 bg-white border border-slate-200 text-slate-400 rounded-2xl shadow-xl flex items-center justify-center hover:text-red-500 transition-all">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7m1 0V6a1 1 0 011-1h10a1 1 0 011 1v1M8 7h8" stroke-width="2"/></svg>
         </button>
-        <button onclick="openAddForm()" class="w-16 h-16 bg-theme text-white rounded-[1.5rem] shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+        <button onclick="openAddForm()" class="w-16 h-16 bg-theme text-white rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="3" stroke-linecap="round"/></svg>
         </button>
     </div>
 
+    <div id="selectorModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[250] hidden items-center justify-center p-4">
+        <div class="bg-white w-full max-w-xs rounded-[2rem] p-6 shadow-2xl fade-in">
+            <h3 class="text-center font-800 text-slate-400 text-[10px] uppercase tracking-widest mb-4">Chuyển đến nhà thuốc</h3>
+            <div id="storeOptions" class="space-y-3">
+                </div>
+            <button onclick="closeSelector()" class="w-full mt-4 py-2 text-slate-400 font-bold text-xs uppercase">Hủy bỏ</button>
+        </div>
+    </div>
+
     <div id="modalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] hidden items-center justify-center p-4">
-        <div class="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl fade-in text-center">
-            <h3 id="modalTitle" class="text-2xl font-800 italic uppercase mb-8 tracking-tighter text-theme text-left">Thông Tin Hóa Đơn</h3>
+        <div class="bg-white w-full max-w-sm rounded-[2rem] p-8 shadow-2xl fade-in text-left">
+            <h3 id="modalTitle" class="text-xl font-800 italic uppercase mb-6 text-theme">Thông Tin Hóa Đơn</h3>
             <input type="hidden" id="formId">
-            <div class="space-y-6 text-left">
+            <div class="space-y-5">
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Đối tác / Nhà cung cấp</label>
-                    <input type="text" id="formName" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1">Nhà cung cấp</label>
+                    <input type="text" id="formName" class="w-full p-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-theme uppercase mb-2 ml-1">Ngày nhận</label>
-                    <input type="date" id="formDate" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold">
+                    <label class="block text-[10px] font-bold text-theme uppercase mb-1.5 ml-1">Ngày nhận</label>
+                    <input type="date" id="formDate" class="w-full p-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-2 ml-1">Đường dẫn tài liệu</label>
-                    <input type="url" id="formLink" class="w-full p-4 rounded-2xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold text-sm">
+                    <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1.5 ml-1">Link tài liệu</label>
+                    <input type="url" id="formLink" class="w-full p-4 rounded-xl bg-slate-50 border-2 border-transparent focus:border-theme outline-none font-bold text-sm">
                 </div>
                 <div class="flex gap-3 pt-4">
-                    <button onclick="closeForm()" class="flex-1 py-4 font-bold text-slate-400">HỦY</button>
-                    <button onclick="handleSave()" class="flex-[2] py-4 bg-theme text-white font-bold rounded-2xl shadow-lg uppercase tracking-widest text-xs">Lưu Dữ Liệu</button>
+                    <button onclick="closeForm()" class="flex-1 py-4 font-bold text-slate-400 uppercase text-xs">Hủy</button>
+                    <button onclick="handleSave()" class="flex-[2] py-4 bg-theme text-white font-bold rounded-xl shadow-lg uppercase text-xs">Lưu Dữ Liệu</button>
                 </div>
             </div>
         </div>
@@ -130,34 +138,24 @@
             const container = document.getElementById('toastContainer');
             const id = Date.now();
             const colors = { success: 'bg-slate-800', error: 'bg-red-600', warning: 'bg-amber-500' };
-            const html = `<div id="${id}" class="${colors[type]} text-white px-5 py-4 rounded-2xl shadow-2xl flex items-center justify-between fade-in border border-white/10"><span class="text-[11px] font-bold uppercase tracking-widest">${msg}</span></div>`;
+            const html = `<div id="${id}" class="${colors[type]} text-white px-5 py-4 rounded-xl shadow-2xl flex items-center fade-in border border-white/10"><span class="text-[10px] font-bold uppercase tracking-widest">${msg}</span></div>`;
             container.insertAdjacentHTML('beforeend', html);
             setTimeout(() => { const el = document.getElementById(id); if (el) el.remove(); }, 3000);
         }
 
-        function togglePharmacy(name, id) {
+        function togglePharmacy(name, themeId) {
             currentPharmacy = name;
-            document.body.className = id === 'TueThien' ? "min-h-screen pb-24 theme-blue" : "min-h-screen pb-24 theme-emerald";
-            document.getElementById('tabTueThien').classList.toggle('active', id === 'TueThien');
-            document.getElementById('tabHungThinh').classList.toggle('active', id === 'HungThinh');
-            loadData();
-        }
-
-        function changeFilter(type) {
-            currentFilter = type;
-            ['all', 'uncompleted', 'completed'].forEach(f => {
-                const el = document.getElementById('filter' + f.charAt(0).toUpperCase() + f.slice(1));
-                el.className = f === type ? "px-6 py-2.5 text-[10px] font-800 rounded-xl transition-all uppercase bg-slate-800 text-white shadow-md" : "px-6 py-2.5 text-[10px] font-800 rounded-xl transition-all uppercase text-slate-500";
-            });
+            document.body.className = `min-h-screen pb-24 theme-${themeId === 'TueThien' ? 'blue' : (themeId === 'HungThinh' ? 'emerald' : 'pink')}`;
+            document.getElementById('tabTueThien').classList.toggle('active', themeId === 'TueThien');
+            document.getElementById('tabHungThinh').classList.toggle('active', themeId === 'HungThinh');
+            document.getElementById('tabPhucAn').classList.toggle('active', themeId === 'PhucAn');
             loadData();
         }
 
         function loadData() {
             if (unsub) unsub();
             let q = db.collection(COLL).where('pharmacy', '==', currentPharmacy).where('isDeleted', '==', false).orderBy('date', 'desc');
-            if (currentFilter === 'completed') q = q.where('completed', '==', true);
             if (currentFilter === 'uncompleted') q = q.where('completed', '==', false);
-            
             unsub = q.onSnapshot(snap => {
                 invoices = [];
                 snap.forEach(doc => invoices.push({ id: doc.id, ...doc.data() }));
@@ -168,100 +166,77 @@
         function renderInvoices(data) {
             const display = document.getElementById('invoiceDisplay');
             if (!data.length) {
-                display.innerHTML = `<div class="py-20 text-center text-slate-300 font-bold text-xs uppercase italic tracking-widest">Trống</div>`;
+                display.innerHTML = `<div class="py-20 text-center text-slate-300 font-bold text-[10px] uppercase italic tracking-widest">Trống</div>`;
                 return;
             }
-
             const todayStr = new Date().toLocaleDateString('en-CA');
             const groups = data.reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});
             let html = '';
-
             Object.keys(groups).sort().reverse().forEach(dateStr => {
                 const d = new Date(dateStr);
                 const dayOfWeek = d.toLocaleDateString('vi-VN', { weekday: 'long' });
-                const dayNum = d.getDate();
                 const items = groups[dateStr];
-                const totalInDay = items.length;
-                const completedInDay = items.filter(i => i.completed).length;
-                const isAllDone = totalInDay > 0 && totalInDay === completedInDay;
-
                 let delayLabel = '';
-                if (!isAllDone) {
-                    if (dateStr === todayStr) {
-                        delayLabel = `<span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded-md ml-2 tracking-tighter">HÔM NAY</span>`;
-                    } else if (dateStr < todayStr) {
-                        const diffDays = Math.floor((new Date(todayStr) - new Date(dateStr)) / (1000 * 60 * 60 * 24));
-                        delayLabel = `<span class="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded-md ml-2 animate-pulse tracking-tighter">TRỄ ${diffDays} NGÀY</span>`;
-                    }
+                if (dateStr === todayStr) delayLabel = `<span class="text-[9px] font-black text-blue-500 bg-blue-50 px-2 py-1 rounded ml-2 uppercase">Hôm nay</span>`;
+                else if (dateStr < todayStr) {
+                    const diff = Math.floor((new Date(todayStr) - new Date(dateStr)) / (1000 * 60 * 60 * 24));
+                    delayLabel = `<span class="text-[9px] font-black text-red-500 bg-red-50 px-2 py-1 rounded ml-2 animate-pulse uppercase">Trễ ${diff} ngày</span>`;
                 }
-
-                html += `
-                    <div class="mb-12 relative">
-                        <div class="date-sticky flex items-center justify-between py-4">
-                            <div class="flex items-center gap-4">
-                                <div class="date-badge flex-shrink-0">
-                                    <div class="date-badge-top">${dayOfWeek.replace('Thứ ', 'T.')}</div>
-                                    <div class="date-badge-bottom">${dayNum < 10 ? '0' + dayNum : dayNum}</div>
-                                </div>
-                                <div class="flex flex-col">
-                                    <div class="flex items-center">
-                                        <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Tháng ${d.getMonth()+1}, ${d.getFullYear()}</span>
-                                        ${delayLabel}
-                                    </div>
-                                    <span class="text-lg font-800 text-slate-800">${dayOfWeek}</span>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-[10px] font-bold px-3 py-1 bg-slate-100 rounded-full text-slate-500">${completedInDay}/${totalInDay} Xong</span>
-                                ${isAllDone ? `<button onclick="cleanupDay('${dateStr}')" class="bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold uppercase shadow-lg pulse-orange">Dọn dẹp</button>` : ''}
-                            </div>
+                html += `<div class="mb-8">
+                    <div class="date-sticky flex items-center justify-between py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="date-badge"><div class="date-badge-top">${dayOfWeek.split(' ')[1]}</div><div class="date-badge-bottom">${d.getDate()}</div></div>
+                            <div><p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">Tháng ${d.getMonth()+1} ${delayLabel}</p><p class="text-lg font-800 text-slate-800">${dayOfWeek}</p></div>
                         </div>
-                        <div class="mt-4 ml-7 pl-8 border-l-2 border-dashed border-slate-100 space-y-4">`;
-
+                    </div>
+                    <div class="mt-4 space-y-3">`;
                 items.forEach(item => {
-                    html += `
-                        <div class="invoice-card fade-in flex items-center justify-between p-5 rounded-[1.5rem]">
-                            <div class="flex items-center gap-5">
-                                <button onclick="toggleStatus('${item.id}', ${item.completed})" class="w-10 h-10 rounded-2xl border-2 flex items-center justify-center ${item.completed ? 'bg-theme border-theme text-white shadow-lg' : 'border-slate-200 hover:border-theme'}">
-                                    ${item.completed ? '<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-width="3"/></svg>' : ''}
-                                </button>
-                                <div>
-                                    <p class="font-bold text-[15px] text-slate-700 ${item.completed ? 'line-through opacity-30' : ''}">${item.name}</p>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">${item.createdAt ? new Date(item.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--'}</p>
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-1">
-                                <button onclick="transferPharmacy('${item.id}', '${item.pharmacy}')" class="p-2.5 text-purple-500 hover:bg-purple-50 rounded-xl transition-all" title="Chuyển nhà thuốc">
-                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                </button>
-                                ${item.link ? `<a href="${item.link}" target="_blank" class="p-2.5 text-amber-500 hover:bg-amber-50 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757" stroke-width="2.5"/></svg></a>` : ''}
-                                <button onclick="openEditForm('${item.id}')" class="p-2.5 text-blue-500 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" stroke-width="2.5"/></svg></button>
-                                <button onclick="confirmDelete('${item.id}')" class="p-2.5 text-red-400 rounded-xl transition-all"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2.5"/></svg></button>
-                            </div>
-                        </div>`;
+                    html += `<div class="invoice-card fade-in flex items-center justify-between p-4 rounded-2xl">
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleStatus('${item.id}', ${item.completed})" class="w-9 h-9 rounded-xl border-2 flex items-center justify-center ${item.completed ? 'bg-theme border-theme text-white' : 'border-slate-200'}">${item.completed ? '✓' : ''}</button>
+                            <div><p class="font-bold text-[14px] ${item.completed ? 'line-through opacity-30 text-slate-400' : 'text-slate-700'}">${item.name}</p><p class="text-[9px] font-bold text-slate-300 uppercase">${item.createdAt ? new Date(item.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--'}</p></div>
+                        </div>
+                        <div class="flex items-center gap-1">
+                            <button onclick="openStoreSelector('${item.id}', '${item.pharmacy}')" class="p-2 text-purple-400" title="Chuyển nhà thuốc"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" stroke-width="2"/></svg></button>
+                            ${item.link ? `<a href="${item.link}" target="_blank" class="p-2 text-amber-500"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757" stroke-width="2"/></svg></a>` : ''}
+                            <button onclick="openEditForm('${item.id}')" class="p-2 text-blue-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5" stroke-width="2"/></svg></button>
+                            <button onclick="confirmDelete('${item.id}')" class="p-2 text-red-300"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2"/></svg></button>
+                        </div>
+                    </div>`;
                 });
                 html += `</div></div>`;
             });
             display.innerHTML = html;
         }
 
-        async function transferPharmacy(id, currentName) {
-            const target = currentName === 'NT Tuệ Thiện' ? 'NT Hưng Thịnh' : 'NT Tuệ Thiện';
-            if(confirm(`Chuyển hóa đơn này sang ${target}?`)) {
-                await db.collection(COLL).doc(id).update({ pharmacy: target });
-                showToast(`Đã chuyển sang ${target}`, "success");
-            }
+        // LOGIC CHỌN NHÀ THUỐC (MỚI)
+        function openStoreSelector(id, current) {
+            const modal = document.getElementById('selectorModal');
+            const options = document.getElementById('storeOptions');
+            const stores = [
+                { name: 'NT Tuệ Thiện', color: 'bg-blue-600' },
+                { name: 'NT Hưng Thịnh', color: 'bg-emerald-600' },
+                { name: 'NT Phúc An', color: 'bg-pink-600' }
+            ];
+
+            options.innerHTML = stores
+                .filter(s => s.name !== current)
+                .map(s => `
+                    <button onclick="executeTransfer('${id}', '${s.name}')" class="w-full p-4 ${s.color} text-white font-bold rounded-2xl shadow-lg transition-transform active:scale-95 text-sm uppercase">
+                        ${s.name}
+                    </button>
+                `).join('');
+            
+            modal.classList.replace('hidden', 'flex');
         }
 
-        async function cleanupDay(date) {
-            if (!confirm(`Dọn dẹp tất cả mục trong ngày ${date}?`)) return;
-            const batch = db.batch();
-            invoices.filter(i => i.date === date).forEach(item => {
-                batch.update(db.collection(COLL).doc(item.id), { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });
-            });
-            await batch.commit();
-            showToast("Đã chuyển vào thùng rác", "warning");
+        async function executeTransfer(id, target) {
+            await db.collection(COLL).doc(id).update({ pharmacy: target });
+            closeSelector();
+            showToast(`Đã chuyển sang ${target}`);
         }
+
+        function closeSelector() { document.getElementById('selectorModal').classList.replace('flex', 'hidden'); }
 
         async function toggleStatus(id, cur) { await db.collection(COLL).doc(id).update({ completed: !cur }); }
         
@@ -287,22 +262,16 @@
         function closeForm() { document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); }
 
         async function handleSave() {
-            const id = document.getElementById('formId').value, 
-                  name = document.getElementById('formName').value.trim(), 
-                  date = document.getElementById('formDate').value, 
-                  link = document.getElementById('formLink').value.trim();
-            if (!name || !date) return showToast("Vui lòng điền đủ thông tin!", "error");
-            const data = { name, date, link, pharmacy: currentPharmacy };
-            if (id) {
-                await db.collection(COLL).doc(id).update(data);
-            } else {
-                await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-            }
-            closeForm(); showToast("Đã lưu dữ liệu!");
+            const name = document.getElementById('formName').value.trim(), date = document.getElementById('formDate').value, id = document.getElementById('formId').value;
+            if (!name || !date) return showToast("Nhập đủ thông tin!", "error");
+            const data = { name, date, link: document.getElementById('formLink').value.trim(), pharmacy: currentPharmacy };
+            if (id) await db.collection(COLL).doc(id).update(data);
+            else await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            closeForm(); showToast("Đã lưu!");
         }
 
         function confirmDelete(id) {
-            if(confirm("Chuyển mục này vào thùng rác?")) {
+            if(confirm("Chuyển vào thùng rác?")) {
                 db.collection(COLL).doc(id).update({ isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });
                 showToast("Đã chuyển vào thùng rác", "warning");
             }
@@ -311,18 +280,18 @@
         function toggleRecycleBinModal() {
             const m = document.getElementById('recycleModal');
             if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); loadRecycleData(); }
-            else { m.classList.replace('flex', 'hidden'); }
+            else m.classList.replace('flex', 'hidden');
         }
 
         function loadRecycleData() {
             const area = document.getElementById('recycleDisplay');
-            db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(20).onSnapshot(snap => {
+            db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(15).onSnapshot(snap => {
                 if (snap.empty) { area.innerHTML = '<p class="text-center py-10 text-slate-300 font-bold uppercase text-[10px]">Trống</p>'; return; }
                 let html = '';
                 snap.forEach(doc => {
                     const item = doc.data();
-                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                        <div class="max-w-[150px]"><p class="text-sm font-bold text-slate-700 truncate">${item.name}</p><p class="text-[9px] text-slate-400">${item.date}</p></div>
+                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                        <div class="max-w-[150px]"><p class="text-sm font-bold text-slate-700 truncate">${item.name}</p><p class="text-[9px] text-slate-400">${item.pharmacy} - ${item.date}</p></div>
                         <div class="flex gap-2">
                             <button onclick="restoreItem('${doc.id}')" class="text-blue-600 text-[10px] font-bold">KHÔI PHỤC</button>
                             <button onclick="hardDelete('${doc.id}')" class="text-red-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M19 7l-.86 11.23a2 2 0 01-1.99 1.77H7.85a2 2 0 01-1.99-1.77L5 7" stroke-width="2"/></svg></button>
@@ -336,31 +305,31 @@
         async function restoreItem(id) { await db.collection(COLL).doc(id).update({ isDeleted: false }); showToast("Đã khôi phục"); }
         async function hardDelete(id) { if(confirm("Xóa vĩnh viễn?")) await db.collection(COLL).doc(id).delete(); }
         
-        function handleSearch(v) { renderInvoices(invoices.filter(i => i.name.toLowerCase().includes(v.toLowerCase()))); }
+        function changeFilter(type) {
+            currentFilter = type;
+            document.getElementById('filterAll').className = type === 'all' ? "px-5 py-2 text-[10px] font-800 rounded-xl bg-slate-800 text-white shadow-md" : "px-5 py-2 text-[10px] font-800 rounded-xl text-slate-500";
+            document.getElementById('filterUncompleted').className = type === 'uncompleted' ? "px-5 py-2 text-[10px] font-800 rounded-xl bg-slate-800 text-white shadow-md" : "px-5 py-2 text-[10px] font-800 rounded-xl text-slate-500";
+            loadData();
+        }
 
         function exportUncompletedToExcel() {
             const uncompletedData = invoices.filter(item => !item.completed);
-            if (!uncompletedData.length) return showToast("Không có mục chưa xong!", "warning");
-            const todayStr = new Date().toLocaleDateString('en-CA');
-            const rows = uncompletedData.map((item, idx) => ({
-                "STT": idx + 1,
-                "Ngày Nhận": item.date,
-                "Tình Trạng": item.date < todayStr ? "Trễ hạn" : "Đúng hạn",
-                "Nhà Cung Cấp": item.name,
-                "Cửa Hàng": item.pharmacy,
-                "Link": item.link || ""
-            }));
+            if (!uncompletedData.length) return showToast("Không có mục tồn đọng!", "warning");
+            const today = new Date(); today.setHours(0,0,0,0);
+            const rows = uncompletedData.map((item, idx) => {
+                const invDate = new Date(item.date); invDate.setHours(0,0,0,0);
+                const diffDays = Math.floor((today - invDate) / (1000 * 60 * 60 * 24));
+                return { "STT": idx + 1, "Ngày Nhận": item.date, "Số Ngày Tồn": diffDays > 0 ? diffDays : 0, "Trạng Thái": diffDays > 0 ? `Trễ ${diffDays} ngày` : "Hôm nay", "NCC": item.name, "Nhà Thuốc": item.pharmacy, "Link": item.link || "" };
+            });
             const ws = XLSX.utils.json_to_sheet(rows);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Bao_Cao");
-            XLSX.writeFile(wb, `TRE_HAN_${currentPharmacy.replace(/ /g,'_')}_${todayStr}.xlsx`);
+            ws['!cols'] = [{wch:5}, {wch:12}, {wch:12}, {wch:15}, {wch:25}, {wch:15}, {wch:35}];
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tồn Đọng");
+            XLSX.writeFile(wb, `BC_TON_${currentPharmacy}_${new Date().toLocaleDateString('en-CA')}.xlsx`);
         }
 
-        window.onload = () => { 
-            document.getElementById('loadingIndicator').classList.add('hidden'); 
-            togglePharmacy('NT Tuệ Thiện', 'TueThien'); 
-        };
+        function handleSearch(v) { renderInvoices(invoices.filter(i => i.name.toLowerCase().includes(v.toLowerCase()))); }
+
+        window.onload = () => { document.getElementById('loadingIndicator').classList.add('hidden'); togglePharmacy('NT Tuệ Thiện', 'TueThien'); };
     </script>
 </body>
 </html>
-
