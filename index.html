@@ -121,7 +121,7 @@
         <img src="https://img.icons8.com/color/480/bonsai.png" class="absolute bottom-[-30px] right-[-40px] w-48 opacity-90 pointer-events-none z-10 transform scale-x-[-1] filter drop-shadow-2xl">
 
         <div class="max-w-4xl mx-auto flex flex-col items-center relative z-20">
-            <h1 class="text-5xl md:text-6xl font-800 text-white mb-10 tet-title uppercase italic tracking-wide cursor-pointer">Xuân Bính Ngọ 2026</h1>
+            <h1 class="text-5xl md:text-6xl font-800 text-white mb-10 tet-title uppercase italic tracking-wide cursor-pointer">HÓA ĐƠN 2026</h1>
             
             <div class="w-full max-w-xl bg-black/20 backdrop-blur-md p-2 rounded-[2rem] flex items-center border border-white/10 shadow-2xl">
                 <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien'); event.stopPropagation();" class="tab-btn flex-1 py-4 uppercase rounded-2xl text-sm">Tuệ Thiện</button>
@@ -445,7 +445,7 @@
         
         function exportUncompletedToExcel() { 
             const data = allInvoices.filter(i => !i.completed); 
-            if (!data.length) return showToast("Không có mục tồn đọng!", "warning"); 
+            if (!data.length) return showToast("Không có mục CÒN LẠI!", "warning"); 
             for(let i=0; i<30; i++) { setTimeout(createFlower, i*30); } 
             
             const rows = data.map((i, idx) => ({ "STT": idx + 1, "Ngày": i.date, "Nhà Cung Cấp": i.name, "Nhà Thuốc": i.pharmacy })); 
@@ -458,3 +458,4 @@
     </script>
 </body>
 </html>
+
