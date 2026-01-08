@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-<meta name="robots" content="noindex">
+    <meta name="robots" content="noindex">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ Thống Hóa Đơn - Luxury Tết 2026 (Full Effect)</title>
     
@@ -19,7 +18,6 @@
         :root { --ruby: #9f1239; --gold: #fbbf24; --smooth: cubic-bezier(0.4, 0, 0.2, 1); }
         body { background: #fffcf5; font-family: 'Plus Jakarta Sans', sans-serif; color: #4c0519; overflow-x: hidden; cursor: url('https://img.icons8.com/external-flaticons-lineal-color-flat-icons/32/external-fireworks-chinese-new-year-flaticons-lineal-color-flat-icons.png'), auto; }
         
-        /* CANVAS PHÁO HOA */
         canvas#fireworksCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; }
 
         /* --- 2. TÍCH HỢP CSS LỒNG ĐÈN --- */
@@ -77,6 +75,10 @@
         .tet-title { font-family: 'Pattaya', cursive; text-shadow: 0 4px 15px rgba(0,0,0,0.3); }
         .dash-item { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; transition: transform 0.3s; }
         .dash-item:hover { transform: translateY(-3px); background: rgba(0,0,0,0.35); }
+
+        /* Custom Scrollbar cho Blacklist */
+        #blacklistDisplay::-webkit-scrollbar { width: 6px; }
+        #blacklistDisplay::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
     </style>
 </head>
 <body>
@@ -165,6 +167,12 @@
 
     <div class="fixed bottom-10 right-10 flex flex-col gap-5 items-end z-[9000]">
         <button onclick="cleanupCompleted(); event.stopPropagation();" class="w-16 h-16 bg-white border border-rose-100 text-rose-600 rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 active:rotate-12 transition-all group" title="Dọn dẹp đã xong"><span class="text-3xl group-hover:animate-wiggle">🧹</span></button>
+        
+        <button onclick="toggleBlacklistModal(); event.stopPropagation();" class="w-16 h-16 bg-zinc-900 border border-zinc-700 text-white rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 transition-all group relative" title="Danh sách đen">
+            <span class="text-3xl">💀</span>
+            <span id="blacklistBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-[10px] w-6 h-6 flex items-center justify-center rounded-full font-bold hidden">0</span>
+        </button>
+
         <button onclick="exportUncompletedToExcel(); event.stopPropagation();" class="w-16 h-16 bg-white border border-emerald-100 text-emerald-600 rounded-2xl shadow-xl flex items-center justify-center hover:scale-110 transition-all group relative" title="Xuất Excel">
             <span class="text-3xl group-hover:animate-bounce">💰</span><span class="absolute -top-3 -right-3 text-[9px] bg-gradient-to-r from-emerald-500 to-emerald-400 text-white px-2 py-1 rounded-full font-black shadow-lg uppercase tracking-wider">Excel</span>
         </button>
@@ -172,9 +180,13 @@
         <button onclick="openAddForm(); event.stopPropagation();" class="w-20 h-20 btn-add text-white rounded-[1.8rem] flex items-center justify-center hover:rotate-12 hover:scale-110 active:scale-90 transition-all shadow-2xl"><span class="text-5xl drop-shadow-md">🏮</span></button>
     </div>
 
-    <div id="selectorModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="closeSelector(event)">
-        <div class="modal-content bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border-t-[10px] border-rose-600 text-center" onclick="event.stopPropagation()">
-            <h3 class="font-900 text-rose-800 text-sm uppercase tracking-[0.2em] mb-6">Chuyển Nhà Thuốc 🏮</h3><div id="storeOptions" class="space-y-3"></div><button onclick="document.getElementById('selectorModal').classList.replace('flex', 'hidden')" class="w-full mt-6 py-3 text-slate-400 font-bold text-xs uppercase hover:text-slate-600">Đóng lại</button>
+    <div id="blacklistModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="toggleBlacklistModal(event)">
+        <div class="modal-content bg-zinc-900 w-full max-w-lg rounded-[2.5rem] p-8 max-h-[80vh] flex flex-col shadow-2xl border border-zinc-700" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-900 text-white uppercase italic flex items-center gap-2">Danh Sách Đen <span class="text-[10px] bg-red-600 text-white px-2 py-1 rounded not-italic font-bold">TRỄ > 4 NGÀY</span></h3>
+                <button onclick="document.getElementById('blacklistModal').classList.replace('flex', 'hidden')" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full text-white hover:bg-red-600 transition-colors">✕</button>
+            </div>
+            <div id="blacklistDisplay" class="flex-1 overflow-y-auto space-y-3 px-1 custom-scrollbar"></div>
         </div>
     </div>
 
@@ -205,7 +217,8 @@
 
     <div id="recycleModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="toggleRecycleBinModal(event)">
         <div class="modal-content bg-white w-full max-w-lg rounded-[2.5rem] p-8 max-h-[80vh] flex flex-col shadow-2xl" onclick="event.stopPropagation()">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-900 text-red-700 uppercase italic flex items-center gap-2">Thùng Rác <span class="text-3xl">🗑️</span></h3><button onclick="document.getElementById('recycleModal').classList.replace('flex', 'hidden')" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 font-black hover:bg-red-50 hover:text-red-500 transition-colors">✕</button></div><div id="recycleDisplay" class="flex-1 overflow-y-auto space-y-3 px-1"></div>
+            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-900 text-red-700 uppercase italic flex items-center gap-2">Thùng Rác <span class="text-3xl">🗑️</span></h3><button onclick="document.getElementById('recycleModal').classList.replace('flex', 'hidden')" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 font-black hover:bg-red-50 hover:text-red-500 transition-colors">✕</button></div>
+            <div id="recycleDisplay" class="flex-1 overflow-y-auto space-y-3 px-1"></div>
         </div>
     </div>
 
@@ -215,64 +228,90 @@
         const db = firebase.firestore(); const COLL = 'medx_invoices';
         
         let currentPharmacy = 'NT Tuệ Thiện', currentFilter = 'all', allInvoices = [], unsub = null;
-        
-        // --- 1. FIREWORKS ENGINE ---
+
+        // --- BLACKLIST LOGIC ---
+        function updateBlacklistBadge(data) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const count = data.filter(item => {
+                if (item.completed) return false;
+                const diffDays = Math.ceil((today - new Date(item.date)) / (1000 * 60 * 60 * 24));
+                return diffDays > 4;
+            }).length;
+
+            const badge = document.getElementById('blacklistBadge');
+            if (count > 0) { badge.innerText = count; badge.classList.remove('hidden'); }
+            else { badge.classList.add('hidden'); }
+        }
+
+        function toggleBlacklistModal(e) {
+            const m = document.getElementById('blacklistModal');
+            if (e && e.target.id !== 'blacklistModal' && !e.target.closest('button[title="Danh sách đen"]')) return;
+            if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); renderBlacklist(); }
+            else m.classList.replace('flex', 'hidden');
+        }
+
+        function renderBlacklist() {
+            const area = document.getElementById('blacklistDisplay');
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const blacklist = allInvoices.filter(item => {
+                if (item.completed) return false;
+                const diffDays = Math.ceil((today - new Date(item.date)) / (1000 * 60 * 60 * 24));
+                return diffDays > 4;
+            });
+            if (!blacklist.length) {
+                area.innerHTML = '<p class="text-center py-10 text-zinc-500 italic">Hiện không có nhà cung cấp nào nợ quá 4 ngày. ✨</p>';
+                return;
+            }
+            area.innerHTML = blacklist.map(item => {
+                const diffDays = Math.ceil((today - new Date(item.date)) / (1000 * 60 * 60 * 24));
+                return `<div class="flex items-center justify-between p-5 bg-zinc-800/50 rounded-2xl border border-zinc-700">
+                    <div><p class="font-bold text-red-500 text-lg">${item.name}</p><p class="text-[10px] text-zinc-400">Ngày: ${item.date} • ${item.pharmacy}</p></div>
+                    <div class="text-right"><p class="text-2xl font-900 text-white">${diffDays}</p><p class="text-[8px] text-zinc-500 uppercase font-black">Ngày Trễ</p></div>
+                </div>`;
+            }).join('');
+        }
+
+        // --- CORE LOGIC ---
         const canvas = document.getElementById("fireworksCanvas");
         const ctx = canvas.getContext("2d");
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        
         window.addEventListener("resize", () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
         
         class Particle {
             constructor(x, y, color) {
                 this.x = x; this.y = y; this.color = color;
                 this.size = Math.random() * 5 + 1;
-                this.speedX = Math.random() * 6 - 3; // Tăng tốc độ bay cho vui mắt
+                this.speedX = Math.random() * 6 - 3;
                 this.speedY = Math.random() * 6 - 3;
                 this.life = Math.random() * 30 + 50;
             }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                this.size *= 0.95; this.life--;
-            }
-            draw() {
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fillStyle = this.color; ctx.fill();
-            }
+            update() { this.x += this.speedX; this.y += this.speedY; this.size *= 0.95; this.life--; }
+            draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); }
         }
         
         const particles = [];
         function createFireworks(x, y) {
             const colors = ["#ff5733", "#33ff57", "#5733ff", "#f4ff33", "#ff33e3", "#ffd700", "#ff0000"];
             for (let i = 0; i < 40; i++) {
-                const color = colors[Math.floor(Math.random() * colors.length)];
-                particles.push(new Particle(x || window.innerWidth/2, y || window.innerHeight/3, color));
+                particles.push(new Particle(x || window.innerWidth/2, y || window.innerHeight/3, colors[Math.floor(Math.random() * colors.length)]));
             }
         }
         
         function animate() {
             ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            particles.forEach((particle, index) => {
-                if (particle.life <= 0 || particle.size <= 0.1) { particles.splice(index, 1); } 
-                else { particle.update(); particle.draw(); }
-            });
+            particles.forEach((p, i) => { if (p.life <= 0 || p.size <= 0.1) particles.splice(i, 1); else { p.update(); p.draw(); } });
             requestAnimationFrame(animate);
         }
         animate();
+        window.addEventListener('click', (e) => { if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') createFireworks(e.clientX, e.clientY); });
 
-        // --- GLOBAL CLICK LISTENER ---
-        window.addEventListener('click', (e) => {
-            // Không nổ pháo nếu click vào input/date/select để tránh rối mắt khi nhập liệu
-            if(e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT' && e.target.tagName !== 'TEXTAREA') {
-                createFireworks(e.clientX, e.clientY);
-            }
-        });
-        // --- END FIREWORKS ---
-
-        window.addEventListener('keydown', (e) => { if (e.key === "Escape") { ['modalOverlay', 'selectorModal', 'recycleModal'].forEach(id => document.getElementById(id).classList.replace('flex', 'hidden')); } });
         function closeForm(e) { if(e.target.id === 'modalOverlay') e.target.classList.replace('flex', 'hidden'); }
-        function closeSelector(e) { if(e.target.id === 'selectorModal') e.target.classList.replace('flex', 'hidden'); }
-        function toggleRecycleBinModal(e) { const m = document.getElementById('recycleModal'); if (e && e.target.id !== 'recycleModal' && !e.target.closest('button[title="Thùng rác"]')) return; if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); loadRecycleData(); } else m.classList.replace('flex', 'hidden'); }
+        function toggleRecycleBinModal(e) { 
+            const m = document.getElementById('recycleModal'); 
+            if (e && e.target.id !== 'recycleModal' && !e.target.closest('button[title="Thùng rác"]')) return;
+            if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); loadRecycleData(); } else m.classList.replace('flex', 'hidden'); 
+        }
 
         function createFlower() {
             const container = document.getElementById('flower-container');
@@ -288,15 +327,8 @@
         }
         setInterval(createFlower, 800);
 
-        function showToast(msg, type='success') {
-            const container = document.getElementById('toastContainer'); const id = Date.now();
-            const html = `<div id="${id}" class="bg-gradient-to-r from-rose-900 to-red-800 text-white px-6 py-4 rounded-2xl shadow-2xl border-l-4 border-yellow-400 font-bold flex items-center gap-3 fade-in pointer-events-auto"><span class="text-2xl">${type === 'success' ? '✨' : '⚠️'}</span><span class="text-sm">${msg}</span></div>`;
-            container.insertAdjacentHTML('beforeend', html);
-            setTimeout(() => { const el = document.getElementById(id); if (el) el.remove(); }, 3500);
-        }
-
         function togglePharmacy(name, themeId) {
-            currentPharmacy = name; document.body.className = `theme-${themeId}`;
+            currentPharmacy = name;
             document.getElementById('tabTueThien').classList.toggle('active', themeId === 'TueThien');
             document.getElementById('tabHungThinh').classList.toggle('active', themeId === 'HungThinh');
             document.getElementById('tabPhucAn').classList.toggle('active', themeId === 'PhucAn');
@@ -305,9 +337,8 @@
 
         function loadData() {
             if (unsub) unsub();
-            let q = db.collection(COLL).where('pharmacy', '==', currentPharmacy).where('isDeleted', '==', false).orderBy('date', 'desc');
-            unsub = q.onSnapshot(snap => { 
-                allInvoices = []; snap.forEach(doc => allInvoices.push({ id: doc.id, ...doc.data() })); applyFilters();
+            unsub = db.collection(COLL).where('pharmacy', '==', currentPharmacy).where('isDeleted', '==', false).orderBy('date', 'desc').onSnapshot(snap => { 
+                allInvoices = []; snap.forEach(doc => allInvoices.push({ id: doc.id, ...doc.data() })); applyFilters(); 
             });
         }
 
@@ -316,163 +347,56 @@
             let filtered = allInvoices;
             if (currentFilter === 'uncompleted') filtered = filtered.filter(i => !i.completed);
             if (searchVal) filtered = filtered.filter(i => i.name.toLowerCase().includes(searchVal));
-            renderInvoices(filtered); updateDashboard(allInvoices);
+            renderInvoices(filtered); updateDashboard(allInvoices); updateBlacklistBadge(allInvoices);
         }
 
         function updateDashboard(data) {
             const completed = data.filter(i => i.completed).length;
-            const pending = data.length - completed;
             document.getElementById('totalCount').innerText = data.length;
             document.getElementById('completedCount').innerText = completed;
-            document.getElementById('pendingCount').innerText = pending;
+            document.getElementById('pendingCount').innerText = data.length - completed;
         }
 
         function renderInvoices(data) {
             const display = document.getElementById('invoiceDisplay');
-            if (!data.length) { display.innerHTML = `<div class="flex flex-col items-center justify-center py-20 opacity-70"><img src="https://img.icons8.com/external-flaticons-lineal-color-flat-icons/200/external-lucky-cat-chinese-new-year-flaticons-lineal-color-flat-icons-2.png" class="w-32 mb-4 animate-bounce"><p class="text-rose-800 font-black uppercase text-sm tracking-[0.3em]">Chưa có dữ liệu</p><p class="text-rose-400 text-xs mt-2 italic">Hãy thêm hóa đơn mới để khai xuân!</p></div>`; return; }
-            
-            const todayStr = new Date().toLocaleDateString('en-CA');
+            if (!data.length) { display.innerHTML = `<div class="flex flex-col items-center justify-center py-20 opacity-70"><img src="https://img.icons8.com/external-flaticons-lineal-color-flat-icons/200/external-lucky-cat-chinese-new-year-flaticons-lineal-color-flat-icons-2.png" class="w-32 mb-4 animate-bounce"><p class="text-rose-800 font-black uppercase text-sm tracking-[0.3em]">Chưa có dữ liệu</p></div>`; return; }
             const groups = data.reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});
-            
             let html = '';
             Object.keys(groups).sort().reverse().forEach(dateStr => {
-                const d = new Date(dateStr); const dayOfWeek = d.toLocaleDateString('vi-VN', { weekday: 'long' });
-                const items = groups[dateStr];
-                const dayTotal = items.length; const dayCompleted = items.filter(i => i.completed).length;
-                let delayLabel = (dateStr < todayStr && items.some(i => !i.completed)) ? `<span class="bg-rose-600 text-white text-[10px] font-bold px-2 py-1 rounded-md ml-2 animate-pulse">TRỄ HẠN</span>` : '';
-                
-                html += `<div class="mb-12">
-                    <div class="date-sticky sticky top-[-1px] z-10 bg-[#fffcf5]/95 backdrop-blur-md py-4 flex items-center justify-between border-b-2 border-orange-100">
-                        <div class="flex items-center gap-4">
-                            <div class="bg-white border border-rose-200 rounded-2xl p-1 shadow-sm text-center min-w-[60px]"><div class="text-[10px] font-black text-rose-400 uppercase">Ngày</div><div class="text-2xl font-900 text-rose-800">${d.getDate()}</div></div>
-                            <div><p class="text-xs font-bold text-rose-300 uppercase tracking-widest">Tháng ${d.getMonth()+1} ${delayLabel}</p><p class="text-xl font-800 text-rose-900">${dayOfWeek}</p></div>
-                        </div>
-                        <div class="text-right"><p class="text-[10px] font-bold text-rose-400 uppercase">Tiến độ</p><p class="text-lg font-900 text-slate-700"><span class="text-emerald-500">${dayCompleted}</span><span class="text-slate-300">/</span>${dayTotal}</p></div>
-                    </div><div class="mt-4 space-y-4">`;
-                
+                const d = new Date(dateStr); const items = groups[dateStr];
+                html += `<div class="mb-12"><div class="sticky top-[-1px] z-10 bg-[#fffcf5]/95 backdrop-blur-md py-4 flex items-center justify-between border-b-2 border-orange-100">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-white border border-rose-200 rounded-2xl p-1 shadow-sm text-center min-w-[60px]"><div class="text-[10px] font-black text-rose-400 uppercase">Ngày</div><div class="text-2xl font-900 text-rose-800">${d.getDate()}</div></div>
+                        <div><p class="text-xs font-bold text-rose-300 uppercase tracking-widest">Tháng ${d.getMonth()+1}</p><p class="text-xl font-800 text-rose-900">${d.toLocaleDateString('vi-VN', { weekday: 'long' })}</p></div>
+                    </div>
+                </div><div class="mt-4 space-y-4">`;
                 items.forEach(item => {
-                    const timeStr = item.createdAt ? new Date(item.createdAt.toDate()).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}) : '--:--';
                     html += `<div class="invoice-card flex items-center justify-between p-6 group">
-                        <div class="flex items-center gap-5"><button onclick="toggleStatus('${item.id}', ${item.completed}, event); event.stopPropagation();" class="w-12 h-12 rounded-full border-2 border-rose-100 flex items-center justify-center transition-all duration-500 ${item.completed ? 'bg-rose-600 text-yellow-300 rotate-[360deg] border-yellow-400 shadow-lg' : 'text-slate-300 hover:border-rose-400'}">${item.completed ? '🌸' : '🏮'}</button><div><p class="font-bold text-lg ${item.completed ? 'line-through opacity-40 text-slate-500' : 'text-slate-800'} transition-all">${item.name}</p><p class="text-[10px] font-bold text-rose-300 uppercase tracking-wider">${timeStr}</p></div></div>
+                        <div class="flex items-center gap-5">
+                            <button onclick="db.collection(COLL).doc('${item.id}').update({completed: ${!item.completed}})" class="w-12 h-12 rounded-full border-2 border-rose-100 flex items-center justify-center transition-all duration-500 ${item.completed ? 'bg-rose-600 text-yellow-300 border-yellow-400 rotate-[360deg]' : 'text-slate-300'}">${item.completed ? '🌸' : '🏮'}</button>
+                            <div><p class="font-bold text-lg ${item.completed ? 'line-through opacity-40 text-slate-500' : 'text-slate-800'}">${item.name}</p><p class="text-[10px] font-bold text-rose-300 uppercase tracking-wider">${item.pharmacy}</p></div>
+                        </div>
                         <div class="flex items-center gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                            <button onclick="openStoreSelector('${item.id}', '${item.pharmacy}'); event.stopPropagation();" class="p-3 bg-rose-50 text-rose-500 rounded-xl hover:bg-rose-100 transition-colors" title="Chuyển kho">📦</button>
-                            ${item.link ? `<a href="${item.link}" target="_blank" onclick="event.stopPropagation()" class="p-3 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-100 transition-colors" title="Xem link">🔗</a>` : ''}
-                            <button onclick="openEditForm('${item.id}'); event.stopPropagation();" class="p-3 bg-amber-50 text-amber-500 rounded-xl hover:bg-amber-100 transition-colors" title="Sửa">✏️</button>
-                            <button onclick="confirmDelete('${item.id}'); event.stopPropagation();" class="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-100 transition-colors" title="Xóa">❌</button>
-                        </div></div>`;
+                            ${item.link ? `<a href="${item.link}" target="_blank" class="p-3 bg-blue-50 text-blue-500 rounded-xl hover:bg-blue-100 transition-colors">🔗</a>` : ''}
+                            <button onclick="openEditForm('${item.id}')" class="p-3 bg-amber-50 text-amber-500 rounded-xl hover:bg-amber-100 transition-colors">✏️</button>
+                            <button onclick="confirmDelete('${item.id}')" class="p-3 bg-red-50 text-red-400 rounded-xl hover:bg-red-100 transition-colors">✕</button>
+                        </div>
+                    </div>`;
                 }); html += `</div></div>`;
             }); display.innerHTML = html;
         }
 
-        async function cleanupCompleted() {
-            const completedOnes = allInvoices.filter(i => i.completed && !i.isDeleted);
-            if (!completedOnes.length) return showToast("Không có hóa đơn hoàn thành!", "warning");
-            if (!confirm(`Dọn dẹp ${completedOnes.length} hóa đơn đã xong?`)) return;
-            document.getElementById('loadingIndicator').classList.remove('hidden');
-            try {
-                const batch = db.batch();
-                completedOnes.forEach(item => { const ref = db.collection(COLL).doc(item.id); batch.update(ref, { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }); });
-                await batch.commit(); showToast(`Đã dọn dẹp ${completedOnes.length} mục!`, "success");
-            } catch (e) { showToast("Lỗi hệ thống", "warning"); } finally { document.getElementById('loadingIndicator').classList.add('hidden'); }
-        }
-
-        async function toggleStatus(id, cur, e) { 
-            await db.collection(COLL).doc(id).update({ completed: !cur }); 
-        }
-        
-        function openStoreSelector(id, current) {
-            const modal = document.getElementById('selectorModal'); const options = document.getElementById('storeOptions');
-            const stores = [{ name: 'NT Tuệ Thiện', col: 'bg-blue-600' }, { name: 'NT Hưng Thịnh', col: 'bg-emerald-600' }, { name: 'NT Phúc An', col: 'bg-pink-600' }];
-            options.innerHTML = stores.filter(s => s.name !== current).map(s => `<button onclick="executeTransfer('${id}', '${s.name}')" class="w-full p-4 ${s.col} text-white font-bold rounded-xl shadow-lg hover:scale-105 transition-transform uppercase text-xs tracking-wider mb-3">${s.name}</button>`).join('');
-            modal.classList.replace('hidden', 'flex');
-        }
-        async function executeTransfer(id, target) { await db.collection(COLL).doc(id).update({ pharmacy: target }); document.getElementById('selectorModal').classList.replace('flex', 'hidden'); showToast(`Đã chuyển sang ${target}`); }
-        
-        function openAddForm() { 
-            ['formId', 'formName', 'formLink'].forEach(id => document.getElementById(id).value = ''); 
-            document.getElementById('formDate').value = new Date().toLocaleDateString('en-CA'); 
-            document.getElementById('modalTitle').innerText = "Thêm Mới 🧧"; 
-            document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); 
-            setTimeout(() => document.getElementById('formName').focus(), 100); 
-        }
-        
-        function openEditForm(id) { 
-            const item = allInvoices.find(i => i.id === id); 
-            document.getElementById('formId').value = item.id; 
-            document.getElementById('formName').value = item.name; 
-            document.getElementById('formDate').value = item.date; 
-            document.getElementById('formLink').value = item.link || ''; 
-            document.getElementById('modalTitle').innerText = "Cập Nhật ✏️"; 
-            document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); 
-        }
-        
-        async function handleSave() { 
-            const name = document.getElementById('formName').value.trim();
-            const date = document.getElementById('formDate').value;
-            const id = document.getElementById('formId').value; 
-            
-            if (!name || !date) return showToast("Vui lòng nhập đủ thông tin!", "warning"); 
-            
-            const data = { name, date, link: document.getElementById('formLink').value.trim(), pharmacy: currentPharmacy }; 
-            
-            if (id) await db.collection(COLL).doc(id).update(data); 
-            else await db.collection(COLL).add({ ...data, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); 
-            
-            document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); 
-            showToast("Lưu thành công!"); 
-        }
-        
+        function openAddForm() { document.getElementById('formId').value = ''; document.getElementById('formName').value = ''; document.getElementById('formDate').value = new Date().toLocaleDateString('en-CA'); document.getElementById('formLink').value = ''; document.getElementById('modalTitle').innerText = "Thêm Mới 🧧"; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }
+        function openEditForm(id) { const item = allInvoices.find(i => i.id === id); document.getElementById('formId').value = item.id; document.getElementById('formName').value = item.name; document.getElementById('formDate').value = item.date; document.getElementById('formLink').value = item.link || ''; document.getElementById('modalTitle').innerText = "Cập Nhật ✏️"; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }
+        async function handleSave() { const id = document.getElementById('formId').value; const name = document.getElementById('formName').value.trim(); const date = document.getElementById('formDate').value; const link = document.getElementById('formLink').value.trim(); if (!name || !date) return showToast("Vui lòng nhập đủ thông tin!", "warning"); if (id) await db.collection(COLL).doc(id).update({ name, date, link }); else await db.collection(COLL).add({ name, date, link, pharmacy: currentPharmacy, completed: false, isDeleted: false, createdAt: firebase.firestore.FieldValue.serverTimestamp() }); document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); showToast("Lưu thành công!"); }
         function confirmDelete(id) { if(confirm("Chuyển vào thùng rác?")) { db.collection(COLL).doc(id).update({ isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }); showToast("Đã chuyển vào thùng rác"); } }
-        
-        function loadRecycleData() { 
-            const area = document.getElementById('recycleDisplay'); 
-            db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(20).onSnapshot(snap => { 
-                if (snap.empty) { area.innerHTML = '<p class="text-center py-10 text-slate-300 italic">Thùng rác trống</p>'; return; } 
-                let html = ''; 
-                snap.forEach(doc => { 
-                    const item = doc.data(); 
-                    html += `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-2 border border-slate-100"><div><p class="font-bold text-slate-700">${item.name}</p><p class="text-[10px] text-slate-400">${item.pharmacy}</p></div><div class="flex gap-2"><button onclick="restoreItem('${doc.id}')" class="text-blue-500 font-bold text-xs bg-blue-50 px-3 py-1.5 rounded-lg">Khôi phục</button><button onclick="hardDelete('${doc.id}')" class="text-red-400 hover:text-red-600 px-2">✕</button></div></div>`; 
-                }); area.innerHTML = html; 
-            }); 
-        }
-        async function restoreItem(id) { await db.collection(COLL).doc(id).update({ isDeleted: false }); showToast("Đã khôi phục!"); }
-        async function hardDelete(id) { if(confirm("Xóa vĩnh viễn không thể khôi phục?")) await db.collection(COLL).doc(id).delete(); }
-        
-        function changeFilter(type) { 
-            currentFilter = type; 
-            document.getElementById('filterAll').className = type === 'all' ? "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all" : "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700"; 
-            document.getElementById('filterUncompleted').className = type === 'uncompleted' ? "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all" : "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700"; 
-            applyFilters();
-        }
-        
-        function exportUncompletedToExcel() { 
-            const data = allInvoices.filter(i => !i.completed); 
-            if (!data.length) return showToast("Không có mục tồn đọng!", "warning"); 
-            for(let i=0; i<30; i++) { setTimeout(createFlower, i*30); } 
-            
-            const rows = data.map((i, idx) => ({ "STT": idx + 1, "Ngày": i.date, "Nhà Cung Cấp": i.name, "Nhà Thuốc": i.pharmacy })); 
-            const ws = XLSX.utils.json_to_sheet(rows); ws['!cols'] = [{wch:5}, {wch:15}, {wch:30}, {wch:15}];
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tồn Kho Tết"); 
-            XLSX.writeFile(wb, `TON_KHO_TET_${currentPharmacy}.xlsx`); showToast("Xuất file thành công! 🧧"); 
-        }
-        
+        function loadRecycleData() { db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(20).onSnapshot(snap => { const area = document.getElementById('recycleDisplay'); if (snap.empty) { area.innerHTML = '<p class="text-center py-10 opacity-30 italic">Thùng rác trống</p>'; return; } area.innerHTML = snap.docs.map(doc => `<div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-2 border border-slate-100"><div><p class="font-bold text-slate-700">${doc.data().name}</p></div><button onclick="db.collection(COLL).doc('${doc.id}').update({isDeleted:false})" class="text-blue-500 font-bold text-xs bg-blue-50 px-3 py-1.5 rounded-lg">Khôi phục</button></div>`).join(''); }); }
+        function changeFilter(type) { currentFilter = type; document.getElementById('filterAll').className = type === 'all' ? "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase" : "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase"; document.getElementById('filterUncompleted').className = type === 'uncompleted' ? "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase" : "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase"; applyFilters(); }
+        function exportUncompletedToExcel() { const data = allInvoices.filter(i => !i.completed); if (!data.length) return showToast("Không có mục tồn đọng!", "warning"); const ws = XLSX.utils.json_to_sheet(data.map((i, idx) => ({ "STT": idx + 1, "Ngày": i.date, "Nhà Cung Cấp": i.name, "Nhà Thuốc": i.pharmacy }))); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Tồn Kho Tết"); XLSX.writeFile(wb, `TON_KHO_TET_${currentPharmacy}.xlsx`); showToast("Xuất file thành công! 🧧"); }
+        function showToast(msg) { const c = document.getElementById('toastContainer'); const id = Date.now(); c.insertAdjacentHTML('beforeend', `<div id="${id}" class="bg-rose-900 text-white px-6 py-4 rounded-2xl shadow-2xl border-l-4 border-yellow-400 font-bold">✨ ${msg}</div>`); setTimeout(() => document.getElementById(id)?.remove(), 3500); }
+        async function cleanupCompleted() { const list = allInvoices.filter(i => i.completed); if (!list.length) return; if (confirm(`Dọn dẹp ${list.length} mục?`)) { const batch = db.batch(); list.forEach(i => batch.update(db.collection(COLL).doc(i.id), { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() })); await batch.commit(); } }
+
         window.onload = () => { setTimeout(() => { document.getElementById('loadingIndicator').classList.add('hidden'); togglePharmacy('NT Tuệ Thiện', 'TueThien'); }, 1000); };
     </script>
-<script src="https://static.jsbin.com/js/render/edit.js?4.1.8"></script>
-<script>jsbinShowEdit && jsbinShowEdit({"static":"https://static.jsbin.com","root":"https://jsbin.com"});</script>
-<script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
-
-ga('create', 'UA-1656750-34', 'auto');
-ga('require', 'linkid', 'linkid.js');
-ga('require', 'displayfeatures');
-ga('send', 'pageview');
-
-</script>
-
 </body>
 </html>
-
