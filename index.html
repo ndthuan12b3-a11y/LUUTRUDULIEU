@@ -23,15 +23,79 @@
     <div id="blacklistModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="toggleBlacklistModal(event)">        <div class="modal-content bg-zinc-900 w-full max-w-lg rounded-[2.5rem] p-8 max-h-[80vh] flex flex-col shadow-2xl border border-zinc-700" onclick="event.stopPropagation()">            <div class="flex justify-between items-center mb-6 text-white italic"><h3 class="text-2xl font-900 flex items-center gap-2">Danh Sách Đen 📓</h3><button onclick="toggleBlacklistModal()" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full text-white hover:bg-red-600 transition-colors">✕</button></div>            <div id="blacklistDisplay" class="flex-1 overflow-y-auto space-y-3 px-1 custom-scrollbar"></div>        </div>    </div>
     <div id="modalOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="closeForm(event)">        <div class="modal-content bg-white w-full max-w-md rounded-[3rem] p-10 shadow-2xl border-t-[12px] border-rose-600" onclick="event.stopPropagation()">            <h3 id="modalTitle" class="text-3xl font-900 italic uppercase mb-8 text-rose-600 text-center">Hóa Đơn 🧧</h3>            <input type="hidden" id="formId">            <div class="space-y-6">                <div><label class="block text-[11px] font-bold text-slate-400 uppercase mb-2 ml-2 tracking-widest">Tên nhà cung cấp (Mỗi dòng 1 nhà)</label><textarea id="formName" rows="4" class="w-full p-5 rounded-2xl bg-rose-50 border-2 border-transparent focus:border-rose-500 outline-none font-bold text-lg text-slate-800 transition-colors"></textarea></div>                <div><label class="block text-[11px] font-bold text-rose-600 uppercase mb-2 ml-2 tracking-widest">Ngày hóa đơn</label><input type="date" id="formDate" class="w-full p-5 rounded-2xl bg-rose-50 border-2 border-transparent focus:border-rose-500 outline-none font-bold text-slate-800 transition-colors"></div>                <div><label class="block text-[11px] font-bold text-slate-400 uppercase mb-2 ml-2 tracking-widest">Link hóa đơn (Dùng để tách đợt)</label><input type="url" id="formLink" placeholder="https://..." class="w-full p-5 rounded-2xl bg-rose-50 border-2 border-transparent focus:border-rose-500 outline-none font-bold text-sm text-blue-600 transition-colors"></div>                <div class="flex gap-4 pt-4"><button onclick="closeModal()" class="flex-1 py-4 font-bold text-slate-400 uppercase text-xs hover:bg-slate-50 rounded-xl transition-colors">Hủy Bỏ</button><button onclick="handleSave()" class="flex-[2] py-4 bg-gradient-to-r from-rose-600 to-red-500 text-white font-bold rounded-2xl shadow-xl uppercase text-xs hover:shadow-2xl active:scale-95 transition-all">Lưu Dữ Liệu</button></div>            </div>        </div>    </div>
     <div id="recycleModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="toggleRecycleBinModal(event)">        <div class="modal-content bg-white w-full max-w-lg rounded-[2.5rem] p-8 max-h-[80vh] flex flex-col shadow-2xl" onclick="event.stopPropagation()">            <div class="flex justify-between items-center mb-6"><h3 class="text-2xl font-900 text-red-700 uppercase italic">Thùng Rác 🗑️</h3><button onclick="toggleRecycleBinModal()" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 font-black hover:bg-red-50 hover:text-red-500 transition-colors">✕</button></div>            <div id="recycleDisplay" class="flex-1 overflow-y-auto space-y-3 px-1"></div>        </div>    </div>
-    <script>        const firebaseConfig = { apiKey: "AIzaSyC737M2y1nwrGP48rEQ8dVhpV4DwUkysg", authDomain: "duanluutrunew.firebaseapp.com", projectId: "duanluutrunew", storageBucket: "duanluutrunew.appspot.com", messagingSenderId: "1008741702165", appId: "1:1008741702165:web:7e81901f4aac66cb9a0c1c" };        firebase.initializeApp(firebaseConfig);         const db = firebase.firestore();         const COLL = 'medx_invoices';                let currentPharmacy = 'NT Tuệ Thiện', currentFilter = 'all', allInvoices = [], unsub = null;
-        function removeVietnameseTones(str) {            if(!str) return "";            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");            str = str.replace(/ò|ó|ọ|ỏ|ã|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");            str = str.replace(/đ/g, "d");            str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");            str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");            str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");            str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");            str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");            str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");            str = str.replace(/Đ/g, "D");            return str;        }
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyC737M2y1nwrGP48rEQ8dVhpV4DwUkysg", authDomain: "duanluutrunew.firebaseapp.com", projectId: "duanluutrunew", storageBucket: "duanluutrunew.appspot.com", messagingSenderId: "1008741702165", appId: "1:1008741702165:web:7e81901f4aac66cb9a0c1c" };
+        firebase.initializeApp(firebaseConfig);
+         const db = firebase.firestore();
+         const COLL = 'medx_invoices';
+                
+         let currentPharmacy = 'NT Tuệ Thiện', currentFilter = 'all', allInvoices = [], unsub = null;
+         let hasShownAlert = false; // CHẶN MODAL LẶP LẠI
+
+        function removeVietnameseTones(str) {
+            if(!str) return "";
+            str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+            str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+            str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+            str = str.replace(/ò|ó|ọ|ỏ|ã|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+            str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+            str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+            str = str.replace(/đ/g, "d");
+            str = str.replace(/À|Á|Ạ|Ả|Ã|Â|Ầ|Ấ|Ậ|Ẩ|Ẫ|Ă|Ằ|Ắ|Ặ|Ẳ|Ẵ/g, "A");
+            str = str.replace(/È|É|Ẹ|Ẻ|Ẽ|Ê|Ề|Ế|Ệ|Ể|Ễ/g, "E");
+            str = str.replace(/Ì|Í|Ị|Ỉ|Ĩ/g, "I");
+            str = str.replace(/Ò|Ó|Ọ|Ỏ|Õ|Ô|Ồ|Ố|Ộ|Ổ|Ỗ|Ơ|Ờ|Ớ|Ợ|Ở|Ỡ/g, "O");
+            str = str.replace(/Ù|Ú|Ụ|Ủ|Ũ|Ư|Ừ|Ứ|Ự|Ử|Ữ/g, "U");
+            str = str.replace(/Ỳ|Ý|Ỵ|Ỷ|Ỹ/g, "Y");
+            str = str.replace(/Đ/g, "D");
+            return str;
+        }
+
         function getBlacklist(data) { return data.filter(item => item.everBlacklisted === true); }
-        async function addToBlacklist(id) {             const item = allInvoices.find(i => i.id === id);            if(confirm(item.everBlacklisted ? "Gỡ khỏi Danh Sách Đen?" : "Đưa vào Danh Sách Đen?")) {                 await db.collection(COLL).doc(id).update({ everBlacklisted: !item.everBlacklisted });                 showToast("Đã cập nhật Danh Sách Đen! 📓");             }         }
-        function updateBlacklistBadge(data) {             const list = getBlacklist(data);             const b = document.getElementById('blacklistBadge');             if (list.length > 0) { b.innerText = list.length; b.classList.remove('hidden'); } else b.classList.add('hidden');         }
-        function renderBlacklist() {             const area = document.getElementById('blacklistDisplay'); const list = getBlacklist(allInvoices);             if (!list.length) { area.innerHTML = '<p class="text-center py-10 text-zinc-500 italic">Trống ✨</p>'; return; }             area.innerHTML = list.map(item => `<div class="flex items-center justify-between p-5 bg-zinc-800/50 rounded-2xl border border-zinc-700 mb-3"><div class="flex-1"><p class="font-bold text-red-500 text-lg leading-tight">${item.name}</p><p class="text-[10px] text-zinc-400 mt-1">Ngày: ${item.date}</p></div><div class="flex gap-2"><button onclick="addToBlacklist('${item.id}')" class="p-3 bg-zinc-700 text-zinc-300 rounded-xl hover:text-white">🔓</button></div></div>`).join('');         }
-        function loadData() {             if (unsub) unsub();             unsub = db.collection(COLL)                .where('date', '>=', '2025-01-01')                .orderBy('date', 'desc')                .onSnapshot(snap => {                     allInvoices = [];                     snap.forEach(doc => allInvoices.push({ id: doc.id, ...doc.data() }));                                         allInvoices.sort((a, b) => {                        if (b.date !== a.date) return b.date.localeCompare(a.date);                        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);                    });                    applyFilters();                     // GỌI HÀM KIỂM TRA QUÁ HẠN 3 NGÀY
-                    checkOverdueInvoices();
-                    if (!document.getElementById('blacklistModal').classList.contains('hidden')) renderBlacklist();                 });         }
+
+        async function addToBlacklist(id) {
+             const item = allInvoices.find(i => i.id === id);
+            if(confirm(item.everBlacklisted ? "Gỡ khỏi Danh Sách Đen?" : "Đưa vào Danh Sách Đen?")) {
+                 await db.collection(COLL).doc(id).update({ everBlacklisted: !item.everBlacklisted });
+                 showToast("Đã cập nhật Danh Sách Đen! 📓");
+             }
+         }
+
+        function updateBlacklistBadge(data) {
+             const list = getBlacklist(data);
+             const b = document.getElementById('blacklistBadge');
+             if (list.length > 0) { b.innerText = list.length; b.classList.remove('hidden'); } else b.classList.add('hidden');
+         }
+
+        function renderBlacklist() {
+             const area = document.getElementById('blacklistDisplay'); const list = getBlacklist(allInvoices);
+             if (!list.length) { area.innerHTML = '<p class="text-center py-10 text-zinc-500 italic">Trống ✨</p>'; return; }
+             area.innerHTML = list.map(item => `<div class="flex items-center justify-between p-5 bg-zinc-800/50 rounded-2xl border border-zinc-700 mb-3"><div class="flex-1"><p class="font-bold text-red-500 text-lg leading-tight">${item.name}</p><p class="text-[10px] text-zinc-400 mt-1">Ngày: ${item.date}</p></div><div class="flex gap-2"><button onclick="addToBlacklist('${item.id}')" class="p-3 bg-zinc-700 text-zinc-300 rounded-xl hover:text-white">🔓</button></div></div>`).join('');
+         }
+
+        function loadData() {
+             if (unsub) unsub();
+             unsub = db.collection(COLL)
+                .where('date', '>=', '2025-01-01')
+                .orderBy('date', 'desc')
+                .onSnapshot(snap => {
+                     allInvoices = [];
+                     snap.forEach(doc => allInvoices.push({ id: doc.id, ...doc.data() }));
+                     
+                     allInvoices.sort((a, b) => {
+                        if (b.date !== a.date) return b.date.localeCompare(a.date);
+                        return (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0);
+                    });
+                    applyFilters();
+                    
+                    // CHỈ HIỆN CẢNH BÁO MỘT LẦN KHI LOAD TRANG
+                    if (!hasShownAlert) {
+                        checkOverdueInvoices();
+                    }
+
+                    if (!document.getElementById('blacklistModal').classList.contains('hidden')) renderBlacklist();
+                 });
+         }
 
         function checkOverdueInvoices() {
             const today = new Date(); today.setHours(0,0,0,0);
@@ -43,13 +107,37 @@
             if (overdueList.length > 0) {
                 document.getElementById('alertList').innerHTML = overdueList.map(i => `<div class="p-3 bg-amber-50 rounded-xl flex justify-between items-center"><div class="min-w-0 flex-1"><p class="font-bold text-slate-800 truncate">${i.name}</p><p class="text-[9px] font-black text-amber-600">${i.pharmacy} - ${i.date}</p></div><span class="text-red-500 font-black text-[10px] ml-2 shrink-0">TRỄ!</span></div>`).join('');
                 document.getElementById('alertModal').classList.replace('hidden', 'flex');
+                hasShownAlert = true; // Đánh dấu đã hiện, lần sau Snapshot chạy sẽ không hiện nữa
             }
         }
 
-        async function handleSave() {             const id = document.getElementById('formId').value; const rawNames = document.getElementById('formName').value.trim(); const date = document.getElementById('formDate').value; const link = document.getElementById('formLink').value.trim();             if (!rawNames || !date) return;             if (id) { await db.collection(COLL).doc(id).update({ name: rawNames, date, link }); showToast("Cập nhật thành công! 🧧"); }             else {                const nameList = rawNames.split('\n').filter(n => n.trim() !== "");                const batch = db.batch(); const now = new Date();                nameList.forEach((name, idx) => {                    const docRef = db.collection(COLL).doc();                    const staggeredTime = firebase.firestore.Timestamp.fromDate(new Date(now.getTime() + idx * 1000));                    batch.set(docRef, { name, date, link, pharmacy: currentPharmacy, completed: false, isDeleted: false, everBlacklisted: false, createdAt: staggeredTime });                });                await batch.commit(); showToast(`Đã thêm thành công! 🏮`);            } closeModal();         }
-        async function deleteOne(id) {            if(confirm("Xóa hóa đơn này?")) {                await db.collection(COLL).doc(id).update({ isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });                showToast("Đã đưa vào thùng rác! 🗑️");            }        }
-        function applyFilters() {             const rawSearchVal = document.getElementById('mainSearch').value.toLowerCase();            const searchVal = removeVietnameseTones(rawSearchVal);            
-            // Cập nhật bộ đếm theo nhà thuốc hiện tại
+        async function handleSave() {
+             const id = document.getElementById('formId').value; const rawNames = document.getElementById('formName').value.trim(); const date = document.getElementById('formDate').value; const link = document.getElementById('formLink').value.trim();
+             if (!rawNames || !date) return;
+             if (id) { await db.collection(COLL).doc(id).update({ name: rawNames, date, link }); showToast("Cập nhật thành công! 🧧"); }
+             else {
+                const nameList = rawNames.split('\n').filter(n => n.trim() !== "");
+                const batch = db.batch(); const now = new Date();
+                nameList.forEach((name, idx) => {
+                    const docRef = db.collection(COLL).doc();
+                    const staggeredTime = firebase.firestore.Timestamp.fromDate(new Date(now.getTime() + idx * 1000));
+                    batch.set(docRef, { name, date, link, pharmacy: currentPharmacy, completed: false, isDeleted: false, everBlacklisted: false, createdAt: staggeredTime });
+                });
+                await batch.commit(); showToast(`Đã thêm thành công! 🏮`);
+            } closeModal();
+         }
+
+        async function deleteOne(id) {
+            if(confirm("Xóa hóa đơn này?")) {
+                await db.collection(COLL).doc(id).update({ isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() });
+                showToast("Đã đưa vào thùng rác! 🗑️");
+            }
+        }
+
+        function applyFilters() {
+             const rawSearchVal = document.getElementById('mainSearch').value.toLowerCase();
+            const searchVal = removeVietnameseTones(rawSearchVal);
+            
             let pData = allInvoices.filter(i => !i.isDeleted && i.pharmacy === currentPharmacy);
             document.getElementById('totalCount').innerText = pData.length;
             document.getElementById('completedCount').innerText = pData.filter(i => i.completed).length;
@@ -57,39 +145,147 @@
 
             let filtered = pData;
             if (currentFilter === 'uncompleted') filtered = filtered.filter(i => !i.completed);                         
-            if (rawSearchVal) {                filtered = filtered.filter(i => {                    const normalizedName = removeVietnameseTones(i.name.toLowerCase());                    return normalizedName.includes(searchVal);                });            }            renderInvoices(filtered);             updateBlacklistBadge(allInvoices);         }
+            if (rawSearchVal) {
+                filtered = filtered.filter(i => {
+                    const normalizedName = removeVietnameseTones(i.name.toLowerCase());
+                    return normalizedName.includes(searchVal);
+                });
+            }
+            renderInvoices(filtered);
+             updateBlacklistBadge(allInvoices);
+         }
 
-        function renderInvoices(data) {            const display = document.getElementById('invoiceDisplay');            if (!data.length) { display.innerHTML = '<p class="text-center py-20 opacity-40 font-black uppercase text-rose-800 tracking-[0.3em]">Danh sách trống</p>'; return; }                        const monthGroups = data.reduce((acc, item) => {                const d = new Date(item.date);                const key = `Tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`;                if (!acc[key]) acc[key] = [];                acc[key].push(item);                return acc;            }, {});
-            let html = '';            Object.keys(monthGroups).forEach(monthKey => {                html += `<div class="month-block mb-10"><div class="timeline-month-header flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-2xl">📅</span><h2 class="text-xl font-900 text-rose-800 uppercase italic">${monthKey}</h2></div></div>`;                const dateGroups = monthGroups[monthKey].reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});                                Object.keys(dateGroups).sort((a,b) => new Date(b) - new Date(a)).forEach(dateStr => {                    const d = new Date(dateStr);                    html += `<div class="mb-12"><div class="sticky top-[60px] z-10 bg-[#fffcf5]/95 backdrop-blur-md py-4 flex items-center justify-between border-b-2 border-orange-100 mb-6"><div class="flex items-center gap-4"><div class="bg-white border border-rose-200 rounded-2xl p-1 shadow-sm text-center min-w-[60px]"><div class="text-[10px] font-black text-rose-400 uppercase">Ngày</div><div class="text-2xl font-900 text-rose-800">${d.getDate()}</div></div><div><p class="text-xl font-800 text-rose-900">${d.toLocaleDateString('vi-VN', { weekday: 'long' })}</p></div></div></div>`;                                        const linkGroups = dateGroups[dateStr].reduce((acc, item) => {                        const linkKey = (item.link && item.link.trim() !== "") ? item.link : "no_link";                        if (!acc[linkKey]) acc[linkKey] = [];                        acc[linkKey].push(item);                        return acc;                    }, {});
-                    Object.keys(linkGroups).forEach(linkKey => {                        const items = linkGroups[linkKey];                        const isNoLink = linkKey === "no_link";                        const cCount = items.filter(it => it.completed).length;                        html += `<div class="link-batch-box"><div class="flex items-center justify-between mb-4 pb-2 border-b border-rose-50"><div class="flex items-center gap-2"><span class="text-xl">${isNoLink ? '📦' : '📂'}</span><span class="text-[10px] font-900 uppercase tracking-widest ${isNoLink ? 'text-slate-400' : 'text-blue-600'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH HÓA ĐƠN'} <span class="ml-2 bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">Hóa đơn: ${cCount}/${items.length}</span></span></div>${!isNoLink ? `<a href="${linkKey}" target="_blank" class="btn-luxury-view shadow-sm">Xem Hóa Đơn ↗</a>` : ''}</div><div class="space-y-2">`;                                                items.forEach(item => {                            html += `<div class="invoice-card group ${item.everBlacklisted ? 'border-black border-l-[12px]' : ''}"><div class="invoice-content-wrapper"><button onclick="db.collection(COLL).doc('${item.id}').update({completed: ${!item.completed}})" class="w-10 h-10 min-w-[40px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 ${item.completed ? 'bg-rose-600 text-yellow-300 border-yellow-400 rotate-[360deg]' : 'border-rose-100 text-slate-300'}">${item.completed ? '🌸' : '🏮'}</button><div class="invoice-text-section"><span class="invoice-name ${item.completed ? 'line-through opacity-40 text-slate-500' : ''}">${item.name}</span><p class="text-[9px] font-bold text-rose-300 uppercase mt-1">${item.pharmacy}</p></div><div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"><button onclick="addToBlacklist('${item.id}')" class="p-2 bg-zinc-100 text-zinc-900 rounded-lg hover:scale-110 transition-transform">📓</button><button onclick="openEditForm('${item.id}')" class="p-2 bg-amber-50 text-amber-500 rounded-lg">✏️</button><button onclick="deleteOne('${item.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-lg">🗑️</button></div></div></div>`;                        });                        html += `</div></div>`;                    }); html += `</div>`;                }); html += `</div>`;            }); display.innerHTML = html;        }
+        function renderInvoices(data) {
+            const display = document.getElementById('invoiceDisplay');
+            if (!data.length) { display.innerHTML = '<p class="text-center py-20 opacity-40 font-black uppercase text-rose-800 tracking-[0.3em]">Danh sách trống</p>'; return; }
+            
+            const monthGroups = data.reduce((acc, item) => {
+                const d = new Date(item.date);
+                const key = `Tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`;
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(item);
+                return acc;
+            }, {});
 
-        async function cleanupCompleted() {             const listToCleanup = allInvoices.filter(i => i.completed === true && i.isDeleted !== true && i.pharmacy === currentPharmacy);            if (listToCleanup.length === 0) { showToast("Không có hóa đơn nào cần dọn dẹp! ✨"); return; }            if (confirm(`Dọn dẹp ${listToCleanup.length} mục đã xong của ${currentPharmacy}?`)) {                 try {                    const batch = db.batch();                     listToCleanup.forEach(i => { batch.update(db.collection(COLL).doc(i.id), { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }); });                     await batch.commit(); showToast("Đã dọn dẹp hệ thống! 🧹");                } catch (e) { showToast("Lỗi dọn dẹp! ❌"); }            }         }
+            let html = '';
+            Object.keys(monthGroups).forEach(monthKey => {
+                html += `<div class="month-block mb-10"><div class="timeline-month-header flex items-center justify-between"><div class="flex items-center gap-2"><span class="text-2xl">📅</span><h2 class="text-xl font-900 text-rose-800 uppercase italic">${monthKey}</h2></div></div>`;
+                const dateGroups = monthGroups[monthKey].reduce((acc, item) => { acc[item.date] = acc[item.date] || []; acc[item.date].push(item); return acc; }, {});
+                                
+                Object.keys(dateGroups).sort((a,b) => new Date(b) - new Date(a)).forEach(dateStr => {
+                    const d = new Date(dateStr);
+                    html += `<div class="mb-12"><div class="sticky top-[60px] z-10 bg-[#fffcf5]/95 backdrop-blur-md py-4 flex items-center justify-between border-b-2 border-orange-100 mb-6"><div class="flex items-center gap-4"><div class="bg-white border border-rose-200 rounded-2xl p-1 shadow-sm text-center min-w-[60px]"><div class="text-[10px] font-black text-rose-400 uppercase">Ngày</div><div class="text-2xl font-900 text-rose-800">${d.getDate()}</div></div><div><p class="text-xl font-800 text-rose-900">${d.toLocaleDateString('vi-VN', { weekday: 'long' })}</p></div></div></div>`;
+                    
+                    const linkGroups = dateGroups[dateStr].reduce((acc, item) => {
+                        const linkKey = (item.link && item.link.trim() !== "") ? item.link : "no_link";
+                        if (!acc[linkKey]) acc[linkKey] = [];
+                        acc[linkKey].push(item);
+                        return acc;
+                    }, {});
 
-        function togglePharmacy(name, tid) { currentPharmacy = name; ['tabTueThien', 'tabHungThinh', 'tabPhucAn'].forEach(id => document.getElementById(id).classList.remove('active')); document.getElementById('tab' + tid).classList.add('active'); applyFilters(); }                
-        function changeFilter(type) {             currentFilter = type;            const btnAll = document.getElementById('filterAll');            const btnUn = document.getElementById('filterUncompleted');            if(type === 'all') {                btnAll.className = "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all";                btnUn.className = "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700";            } else {                btnUn.className = "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all";                btnAll.className = "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700";            }            applyFilters();         }
+                    Object.keys(linkGroups).forEach(linkKey => {
+                        const items = linkGroups[linkKey];
+                        const isNoLink = linkKey === "no_link";
+                        const cCount = items.filter(it => it.completed).length;
+                        html += `<div class="link-batch-box"><div class="flex items-center justify-between mb-4 pb-2 border-b border-rose-50"><div class="flex items-center gap-2"><span class="text-xl">${isNoLink ? '📦' : '📂'}</span><span class="text-[10px] font-900 uppercase tracking-widest ${isNoLink ? 'text-slate-400' : 'text-blue-600'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH HÓA ĐƠN'} <span class="ml-2 bg-rose-100 text-rose-600 px-2 py-0.5 rounded-full">Hóa đơn: ${cCount}/${items.length}</span></span></div>${!isNoLink ? `<a href="${linkKey}" target="_blank" class="btn-luxury-view shadow-sm">Xem Hóa Đơn ↗</a>` : ''}</div><div class="space-y-2">`;
+                                
+                        items.forEach(item => {
+                            html += `<div class="invoice-card group ${item.everBlacklisted ? 'border-black border-l-[12px]' : ''}"><div class="invoice-content-wrapper"><button onclick="db.collection(COLL).doc('${item.id}').update({completed: ${!item.completed}})" class="w-10 h-10 min-w-[40px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 ${item.completed ? 'bg-rose-600 text-yellow-300 border-yellow-400 rotate-[360deg]' : 'border-rose-100 text-slate-300'}">${item.completed ? '🌸' : '🏮'}</button><div class="invoice-text-section"><span class="invoice-name ${item.completed ? 'line-through opacity-40 text-slate-500' : ''}">${item.name}</span><p class="text-[9px] font-bold text-rose-300 uppercase mt-1">${item.pharmacy}</p></div><div class="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"><button onclick="addToBlacklist('${item.id}')" class="p-2 bg-zinc-100 text-zinc-900 rounded-lg hover:scale-110 transition-transform">📓</button><button onclick="openEditForm('${item.id}')" class="p-2 bg-amber-50 text-amber-500 rounded-lg">✏️</button><button onclick="deleteOne('${item.id}')" class="p-2 bg-rose-50 text-rose-600 rounded-lg">🗑️</button></div></div></div>`;
+                        });
+                        html += `</div></div>`;
+                    }); html += `</div>`;
+                }); html += `</div>`;
+            }); display.innerHTML = html;
+        }
 
-        function openAddForm() { document.getElementById('formId').value = ''; document.getElementById('formName').value = ''; document.getElementById('formLink').value = ''; document.getElementById('formDate').value = new Date().toISOString().split('T')[0]; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }        
-        function openEditForm(id) { const i = allInvoices.find(it => it.id === id); document.getElementById('formId').value = i.id; document.getElementById('formName').value = i.name; document.getElementById('formDate').value = i.date; document.getElementById('formLink').value = i.link || ''; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }        
+        async function cleanupCompleted() {
+             const listToCleanup = allInvoices.filter(i => i.completed === true && i.isDeleted !== true && i.pharmacy === currentPharmacy);
+            if (listToCleanup.length === 0) { showToast("Không có hóa đơn nào cần dọn dẹp! ✨"); return; }
+            if (confirm(`Dọn dẹp ${listToCleanup.length} mục đã xong của ${currentPharmacy}?`)) {
+                 try {
+                    const batch = db.batch();
+                    listToCleanup.forEach(i => { batch.update(db.collection(COLL).doc(i.id), { isDeleted: true, deletedAt: firebase.firestore.FieldValue.serverTimestamp() }); });
+                    await batch.commit(); showToast("Đã dọn dẹp hệ thống! 🧹");
+                } catch (e) { showToast("Lỗi dọn dẹp! ❌"); }
+            }
+         }
+
+        function togglePharmacy(name, tid) { currentPharmacy = name; ['tabTueThien', 'tabHungThinh', 'tabPhucAn'].forEach(id => document.getElementById(id).classList.remove('active')); document.getElementById('tab' + tid).classList.add('active'); applyFilters(); }
+        
+        function changeFilter(type) {
+             currentFilter = type;
+            const btnAll = document.getElementById('filterAll');
+            const btnUn = document.getElementById('filterUncompleted');
+            if(type === 'all') {
+                btnAll.className = "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all";
+                btnUn.className = "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700";
+            } else {
+                btnUn.className = "px-6 py-3 text-xs font-900 rounded-2xl bg-rose-600 text-white shadow-lg uppercase transition-all";
+                btnAll.className = "px-6 py-3 text-xs font-900 rounded-2xl text-rose-900/50 uppercase transition-all hover:text-rose-700";
+            }
+            applyFilters();
+         }
+
+        function openAddForm() { document.getElementById('formId').value = ''; document.getElementById('formName').value = ''; document.getElementById('formLink').value = ''; document.getElementById('formDate').value = new Date().toISOString().split('T')[0]; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }
+        
+        function openEditForm(id) { const i = allInvoices.find(it => it.id === id); document.getElementById('formId').value = i.id; document.getElementById('formName').value = i.name; document.getElementById('formDate').value = i.date; document.getElementById('formLink').value = i.link || ''; document.getElementById('modalOverlay').classList.replace('hidden', 'flex'); }
+        
         function closeModal() { document.getElementById('modalOverlay').classList.replace('flex', 'hidden'); }
 
-        function toggleBlacklistModal(e) {             const m = document.getElementById('blacklistModal');             if (e && e.target.id !== 'blacklistModal' && !e.target.closest('button[title="Danh Sách Đen"]')) return;             if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); renderBlacklist(); } else m.classList.replace('flex', 'hidden');         }
+        function toggleBlacklistModal(e) {
+             const m = document.getElementById('blacklistModal');
+             if (e && e.target.id !== 'blacklistModal' && !e.target.closest('button[title="Danh Sách Đen"]')) return;
+             if (m.classList.contains('hidden')) { m.classList.replace('hidden', 'flex'); renderBlacklist(); } else m.classList.replace('flex', 'hidden');
+         }
 
-        function toggleRecycleBinModal(e) {             const m = document.getElementById('recycleModal');             if (e && e.target.id !== 'recycleModal' && !e.target.closest('button[title="Thùng rác"]')) return;             if (m.classList.contains('hidden')) {                 m.classList.replace('hidden', 'flex');                 db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(30).get().then(s => {                     document.getElementById('recycleDisplay').innerHTML = s.docs.map(doc => `                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-2">                            <div class="flex flex-col">                                <span class="font-bold text-slate-700">${doc.data().name}</span>                                <span class="text-[10px] text-slate-400">${doc.data().date}</span>                            </div>                            <button onclick="restoreItem('${doc.id}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg font-bold text-xs hover:bg-blue-200 transition-colors">PHỤC HỒI</button>                        </div>`).join('');                 });             } else m.classList.replace('flex', 'hidden');         }
+        function toggleRecycleBinModal(e) {
+             const m = document.getElementById('recycleModal');
+             if (e && e.target.id !== 'recycleModal' && !e.target.closest('button[title="Thùng rác"]')) return;
+             if (m.classList.contains('hidden')) {
+                 m.classList.replace('hidden', 'flex');
+                 db.collection(COLL).where('isDeleted', '==', true).orderBy('deletedAt', 'desc').limit(30).get().then(s => {
+                     document.getElementById('recycleDisplay').innerHTML = s.docs.map(doc => `
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl mb-2">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-700">${doc.data().name}</span>
+                                <span class="text-[10px] text-slate-400">${doc.data().date}</span>
+                            </div>
+                            <button onclick="restoreItem('${doc.id}')" class="bg-blue-100 text-blue-600 px-3 py-1 rounded-lg font-bold text-xs hover:bg-blue-200 transition-colors">PHỤC HỒI</button>
+                        </div>`).join('');
+                 });
+             } else m.classList.replace('flex', 'hidden');
+         }
 
-        async function restoreItem(id) {            await db.collection(COLL).doc(id).update({ isDeleted: false });            showToast("Đã phục hồi hóa đơn! 🎁");            toggleRecycleBinModal();         }
+        async function restoreItem(id) {
+            await db.collection(COLL).doc(id).update({ isDeleted: false });
+            showToast("Đã phục hồi hóa đơn! 🎁");
+            toggleRecycleBinModal();
+         }
 
-        function showToast(msg) { const c = document.getElementById('toastContainer'); const id = Date.now(); c.insertAdjacentHTML('beforeend', `<div id="${id}" class="bg-rose-900 text-white px-6 py-4 rounded-2xl shadow-xl border-l-4 border-yellow-400 font-bold">✨ ${msg}</div>`); setTimeout(() => document.getElementById(id)?.remove(), 3000); }        
+        function showToast(msg) { const c = document.getElementById('toastContainer'); const id = Date.now(); c.insertAdjacentHTML('beforeend', `<div id="${id}" class="bg-rose-900 text-white px-6 py-4 rounded-2xl shadow-xl border-l-4 border-yellow-400 font-bold">✨ ${msg}</div>`); setTimeout(() => document.getElementById(id)?.remove(), 3000); }
+        
         function closeForm(e) { if(e.target.id === 'modalOverlay') closeModal(); }
 
-        async function exportUncompletedToExcel() {             
-            const data = allInvoices.filter(i => !i.completed && i.isDeleted !== true);             
-            if (!data.length) { showToast("Không có dữ liệu! ✨"); return; }             
-            const ws = XLSX.utils.json_to_sheet(data.map(i => ({"Ngày": i.date, "Nhà Thuốc": i.pharmacy, "Nhà Cung Cấp": i.name, "Link": i.link || "" })));             
-            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "HOA DON");             
-            XLSX.writeFile(wb, `HOA_DON_TONG_HOP_2026.xlsx`);         
+        async function exportUncompletedToExcel() {
+            const data = allInvoices.filter(i => !i.completed && i.isDeleted !== true);
+            if (!data.length) { showToast("Không có dữ liệu! ✨"); return; }
+            const ws = XLSX.utils.json_to_sheet(data.map(i => ({"Ngày": i.date, "Nhà Thuốc": i.pharmacy, "Nhà Cung Cấp": i.name, "Link": i.link || "" })));
+            const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "HOA DON");
+            XLSX.writeFile(wb, `HOA_DON_TONG_HOP_2026.xlsx`);
             showToast("Đã xuất file tổng hợp! 💰");
         }
 
-        /* --- HIỆU ỨNG PHÁO HOA --- */        const canvas = document.getElementById("fireworksCanvas"); const ctx = canvas.getContext("2d");         canvas.width = window.innerWidth; canvas.height = window.innerHeight;        class Particle { constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random() * 5 + 1; this.speedX = Math.random() * 6 - 3; this.speedY = Math.random() * 6 - 3; this.life = Math.random() * 30 + 50; } update() { this.x += this.speedX; this.y += this.speedY; this.size *= 0.95; this.life--; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); } }        const particles = [];         function createFireworks(x, y) { const colors = ["#ff5733", "#33ff57", "#5733ff", "#ffd700", "#ff0000"]; for (let i = 0; i < 40; i++) particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)])); }        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach((p, i) => { if (p.life <= 0 || p.size <= 0.1) particles.splice(i, 1); else { p.update(); p.draw(); } }); requestAnimationFrame(animate); } animate();        window.addEventListener('click', (e) => { if(!['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) createFireworks(e.clientX, e.clientY); });                
-        /* --- HIỆU ỨNG HOA RƠI --- */        setInterval(() => { const f = document.createElement('div'); f.className = 'flower'; f.innerHTML = `<img src="https://lutaweb.com/wp-content/uploads/2022/01/hoa-mai-1.png" style="width:${Math.random()*20+10}px">`; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = Math.random() * 5 + 7 + 's'; document.getElementById('flower-container').appendChild(f); setTimeout(() => f.remove(), 10000); }, 1000);                
-        window.onload = () => { setTimeout(() => { document.getElementById('loadingIndicator').classList.add('hidden'); loadData(); }, 1000); };    </script></body></html>
+        /* --- HIỆU ỨNG PHÁO HOA --- */
+        const canvas = document.getElementById("fireworksCanvas"); const ctx = canvas.getContext("2d");
+         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        class Particle { constructor(x, y, color) { this.x = x; this.y = y; this.color = color; this.size = Math.random() * 5 + 1; this.speedX = Math.random() * 6 - 3; this.speedY = Math.random() * 6 - 3; this.life = Math.random() * 30 + 50; } update() { this.x += this.speedX; this.y += this.speedY; this.size *= 0.95; this.life--; } draw() { ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fillStyle = this.color; ctx.fill(); } }
+        const particles = [];
+         function createFireworks(x, y) { const colors = ["#ff5733", "#33ff57", "#5733ff", "#ffd700", "#ff0000"]; for (let i = 0; i < 40; i++) particles.push(new Particle(x, y, colors[Math.floor(Math.random() * colors.length)])); }
+        function animate() { ctx.clearRect(0, 0, canvas.width, canvas.height); particles.forEach((p, i) => { if (p.life <= 0 || p.size <= 0.1) particles.splice(i, 1); else { p.update(); p.draw(); } }); requestAnimationFrame(animate); } animate();
+        window.addEventListener('click', (e) => { if(!['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target.tagName)) createFireworks(e.clientX, e.clientY); });
+                
+        /* --- HIỆU ỨNG HOA RƠI --- */
+        setInterval(() => { const f = document.createElement('div'); f.className = 'flower'; f.innerHTML = `<img src="https://lutaweb.com/wp-content/uploads/2022/01/hoa-mai-1.png" style="width:${Math.random()*20+10}px">`; f.style.left = Math.random() * 100 + 'vw'; f.style.animationDuration = Math.random() * 5 + 7 + 's'; document.getElementById('flower-container').appendChild(f); setTimeout(() => f.remove(), 10000); }, 1000);
+                
+        window.onload = () => { setTimeout(() => { document.getElementById('loadingIndicator').classList.add('hidden'); loadData(); }, 1000); };
+    </script></body></html>
