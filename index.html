@@ -16,9 +16,8 @@
     <style>
         :root { 
             --smooth: cubic-bezier(0.4, 0, 0.2, 1); 
-            --theme-color: #60a5fa; /* Màu nhấn sáng hơn để nổi trên nền tối */
+            --theme-color: #60a5fa; 
             
-            /* Các mảng màu để phối (Mesh Gradient) - Đậm hơn để chữ trắng nổi bật */
             --c1: #0f172a; 
             --c2: #1e3a8a; 
             --c3: #4c1d95; 
@@ -28,13 +27,12 @@
         body { 
             background: transparent; 
             font-family: 'Inter', sans-serif; 
-            color: #ffffff; /* Toàn bộ chữ mặc định màu trắng */
+            color: #ffffff; 
             overflow-x: hidden; 
         }
 
         .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
 
-        /* NỀN ẢO DIỆU (LIQUID MESH GRADIENT) */
         #liquid-bg {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -67,11 +65,9 @@
 
         .app-gradient { background: transparent; position: relative; }
 
-        /* TAB KÍNH MỜ */
         .tab-btn { font-weight: 500; color: rgba(255,255,255,0.5); transition: all 0.4s var(--smooth); }
         .tab-btn.active { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0,0,0,0.2); font-weight: 700; color: #fff !important; border: 1px solid rgba(255,255,255,0.2); }
         
-        /* GIAO DIỆN TRONG SUỐT (ULTRA GLASSMORPHISM) */
         .luxury-panel { 
             background: rgba(255, 255, 255, 0.03); 
             backdrop-filter: blur(30px); 
@@ -96,12 +92,10 @@
 
         .dash-item { background: rgba(255,255,255,0.05); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s; }
         
-        /* Modal & Form trong suốt */
         .glass-modal { background: rgba(10, 10, 10, 0.5); backdrop-filter: blur(40px); border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
         .glass-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #fff; transition: all 0.3s; }
         .glass-input:focus { background: rgba(255,255,255,0.1); border-color: var(--theme-color); outline: none; }
         .glass-input::placeholder { color: rgba(255,255,255,0.3); }
-        /* Tùy chỉnh icon lịch của input date */
         ::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.7; cursor: pointer; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -435,7 +429,11 @@
                         const items = linkGroups[linkKey];
                         const isNoLink = linkKey === "no_link";
                         const cCount = items.filter(it => it.completed).length;
-                        html += `<div class="link-batch-box ml-2"><div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10"><div class="flex items-center gap-2"><span class="text-xl opacity-80">${isNoLink ? '📦' : '📂'}</span><span class="text-[11px] font-bold uppercase tracking-widest ${isNoLink ? 'text-white/60' : 'text-blue-300 drop-shadow-md'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH '} <span class="ml-2 bg-white/10 text-white/80 px-2 py-0.5 rounded-full text-[10px] border border-white/5">Hóa đơn: ${cCount}/${items.length}</span></span></div></div><div class="space-y-1">`;
+                        
+                        // HIỆN LẠI NÚT XEM FILE NGOÀI TRANG CHỦ KHI LÀ DANH SÁCH NHÓM LINK
+                        const viewLinkBtn = !isNoLink ? `<a href="${linkKey}" target="_blank" class="px-3.5 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 border border-blue-400/30 text-blue-100 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center gap-1 backdrop-blur-md">XEM HÓA ĐƠN <span class="text-[12px]">↗</span></a>` : '';
+
+                        html += `<div class="link-batch-box ml-2"><div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10"><div class="flex items-center gap-2"><span class="text-xl opacity-80">${isNoLink ? '📦' : '📂'}</span><span class="text-[11px] font-bold uppercase tracking-widest ${isNoLink ? 'text-white/60' : 'text-blue-300 drop-shadow-md'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH '} <span class="ml-2 bg-white/10 text-white/80 px-2 py-0.5 rounded-full text-[10px] border border-white/5">Hóa đơn: ${cCount}/${items.length}</span></span></div>${viewLinkBtn}</div><div class="space-y-1">`;
                         
                         items.forEach(item => {
                             const noteHtml = item.note ? `<p class="text-[13px] text-white/70 font-medium mt-2.5 bg-white/5 px-3 py-2 rounded-lg border border-white/10 inline-block w-full backdrop-blur-sm"><span class="mr-1 opacity-70">📝</span>${item.note}</p>` : '';
@@ -512,7 +510,6 @@
             activeTab.classList.add('active'); 
             
             const root = document.documentElement;
-            // Phối màu nền đậm, sâu thẳm, các blob màu neon rực rỡ để chữ trắng nổi bật
             if (tid === 'TueThien') { 
                 root.style.setProperty('--theme-color', '#60a5fa'); 
                 root.style.setProperty('--c1', '#0f172a'); // Nền tối slate
