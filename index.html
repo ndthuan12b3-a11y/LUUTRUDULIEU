@@ -18,10 +18,11 @@
             --smooth: cubic-bezier(0.4, 0, 0.2, 1); 
             --theme-color: #60a5fa; 
             
-            --c1: #0f172a; 
+            /* CÁC MÃ MÀU ĐÃ ĐƯỢC LÀM ĐẬM VÀ SÂU HƠN */
+            --c1: #020617; 
             --c2: #1e3a8a; 
-            --c3: #4c1d95; 
-            --c4: #0891b2; 
+            --c3: #5b21b6; 
+            --c4: #0369a1; 
         }
         
         body { 
@@ -39,22 +40,23 @@
             z-index: -1;
             background-color: var(--c1);
             overflow: hidden;
-            transition: background-color 1.5s ease;
+            transition: background-color 2s ease;
         }
         
         .color-blob {
             position: absolute;
-            filter: blur(100px);
+            filter: blur(140px); /* Tăng độ nhòe để màu hòa quyện đều hơn */
             border-radius: 50%;
-            animation: float 20s infinite alternate ease-in-out;
-            opacity: 0.9;
-            transition: background-color 1.5s ease;
+            animation: float 25s infinite alternate ease-in-out;
+            opacity: 0.85; /* Giảm độ chói nhẹ để nền đậm đà hơn */
+            transition: background-color 2s ease;
             pointer-events: none;
         }
         
-        .blob-1 { top: -10%; left: -10%; width: 60vw; height: 60vw; background-color: var(--c2); animation-delay: 0s; }
-        .blob-2 { bottom: -20%; right: -10%; width: 70vw; height: 70vw; background-color: var(--c3); animation-delay: -5s; }
-        .blob-3 { top: 30%; left: 30%; width: 50vw; height: 50vw; background-color: var(--c4); animation-delay: -10s; }
+        /* Tăng kích thước các khối màu để phủ đều toàn bộ màn hình */
+        .blob-1 { top: -20%; left: -10%; width: 80vw; height: 80vw; background-color: var(--c2); animation-delay: 0s; }
+        .blob-2 { bottom: -20%; right: -10%; width: 90vw; height: 90vw; background-color: var(--c3); animation-delay: -5s; }
+        .blob-3 { top: 20%; left: 20%; width: 70vw; height: 70vw; background-color: var(--c4); animation-delay: -10s; }
 
         @keyframes float {
             0% { transform: translate(0, 0) scale(1) rotate(0deg); }
@@ -430,8 +432,7 @@
                         const isNoLink = linkKey === "no_link";
                         const cCount = items.filter(it => it.completed).length;
                         
-                        // HIỆN LẠI NÚT XEM FILE NGOÀI TRANG CHỦ KHI LÀ DANH SÁCH NHÓM LINK
-                        const viewLinkBtn = !isNoLink ? `<a href="${linkKey}" target="_blank" class="px-3.5 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 border border-blue-400/30 text-blue-100 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center gap-1 backdrop-blur-md">XEM HÓA ĐƠN <span class="text-[12px]">↗</span></a>` : '';
+                        const viewLinkBtn = !isNoLink ? `<a href="${linkKey}" target="_blank" class="px-3.5 py-1.5 bg-blue-500/20 hover:bg-blue-500/40 border border-blue-400/30 text-blue-100 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all shadow-[0_0_15px_rgba(59,130,246,0.15)] flex items-center gap-1 backdrop-blur-md">Xem hóa đơn <span class="text-[12px]">↗</span></a>` : '';
 
                         html += `<div class="link-batch-box ml-2"><div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10"><div class="flex items-center gap-2"><span class="text-xl opacity-80">${isNoLink ? '📦' : '📂'}</span><span class="text-[11px] font-bold uppercase tracking-widest ${isNoLink ? 'text-white/60' : 'text-blue-300 drop-shadow-md'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH '} <span class="ml-2 bg-white/10 text-white/80 px-2 py-0.5 rounded-full text-[10px] border border-white/5">Hóa đơn: ${cCount}/${items.length}</span></span></div>${viewLinkBtn}</div><div class="space-y-1">`;
                         
@@ -498,7 +499,7 @@
             }
         }
 
-        /* HÀM CHUYỂN MÀU NỀN MESH GRADIENT */
+        /* HÀM CHUYỂN MÀU NỀN MESH GRADIENT DẠNG ĐẬM (JEWEL TONES) */
         function togglePharmacy(name, tid) { 
             currentPharmacy = name; 
             ['tabTueThien', 'tabHungThinh', 'tabPhucAn'].forEach(id => {
@@ -512,24 +513,24 @@
             const root = document.documentElement;
             if (tid === 'TueThien') { 
                 root.style.setProperty('--theme-color', '#60a5fa'); 
-                root.style.setProperty('--c1', '#0f172a'); // Nền tối slate
-                root.style.setProperty('--c2', '#1d4ed8'); // Blue đậm
-                root.style.setProperty('--c3', '#6d28d9'); // Tím sâu
-                root.style.setProperty('--c4', '#0369a1'); // Cyan sâu
+                root.style.setProperty('--c1', '#020617'); // Slate rất tối
+                root.style.setProperty('--c2', '#1e3a8a'); // Xanh đại dương
+                root.style.setProperty('--c3', '#5b21b6'); // Tím đậm
+                root.style.setProperty('--c4', '#0369a1'); // Cyan đậm
             } 
             else if (tid === 'HungThinh') { 
                 root.style.setProperty('--theme-color', '#34d399'); 
-                root.style.setProperty('--c1', '#022c22'); // Nền tối green
-                root.style.setProperty('--c2', '#047857'); // Emerald đậm
-                root.style.setProperty('--c3', '#0369a1'); // Sky đậm
-                root.style.setProperty('--c4', '#4d7c0f'); // Lime sâu
+                root.style.setProperty('--c1', '#022c22'); // Xanh lá tối
+                root.style.setProperty('--c2', '#065f46'); // Lục bảo
+                root.style.setProperty('--c3', '#0f766e'); // Xanh mòng két
+                root.style.setProperty('--c4', '#15803d'); // Xanh rêu
             } 
             else if (tid === 'PhucAn') { 
                 root.style.setProperty('--theme-color', '#f472b6'); 
-                root.style.setProperty('--c1', '#4c0519'); // Nền tối rose
-                root.style.setProperty('--c2', '#be123c'); // Rose đậm
-                root.style.setProperty('--c3', '#a21caf'); // Fuchsia đậm
-                root.style.setProperty('--c4', '#9d174d'); // Pink sâu
+                root.style.setProperty('--c1', '#4c0519'); // Đỏ mận cực tối
+                root.style.setProperty('--c2', '#9f1239'); // Đỏ rượu
+                root.style.setProperty('--c3', '#86198f'); // Tím than
+                root.style.setProperty('--c4', '#be185d'); // Hồng đậm
             } 
             
             applyFilters(); 
@@ -658,9 +659,9 @@
             setTimeout(() => { 
                 document.getElementById('loadingIndicator').classList.add('hidden'); 
                 // Kích hoạt màu Tuệ Thiện ban đầu
-                document.documentElement.style.setProperty('--c1', '#0f172a');
-                document.documentElement.style.setProperty('--c2', '#1d4ed8');
-                document.documentElement.style.setProperty('--c3', '#6d28d9');
+                document.documentElement.style.setProperty('--c1', '#020617');
+                document.documentElement.style.setProperty('--c2', '#1e3a8a');
+                document.documentElement.style.setProperty('--c3', '#5b21b6');
                 document.documentElement.style.setProperty('--c4', '#0369a1');
                 loadData(); 
             }, 1000); 
