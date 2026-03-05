@@ -22,12 +22,11 @@
         
         body { 
             background: #f8fafc; 
-            font-family: 'Inter', sans-serif; /* Font chính cho toàn bộ web */
+            font-family: 'Inter', sans-serif; 
             color: #0f172a; 
             overflow-x: hidden; 
         }
 
-        /* Class dành riêng cho Tiêu đề và Số liệu */
         .font-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
 
         .app-gradient { 
@@ -69,11 +68,11 @@
         .invoice-content-wrapper { display: flex; align-items: flex-start; gap: 1.25rem; width: 100%; }
         .invoice-text-section { flex: 1; min-width: 0; }
         
-        /* Tên nhà cung cấp to, rõ, dễ đọc */
-        .invoice-name { font-size: 17px; font-weight: 600; word-break: break-word; overflow-wrap: break-word; line-height: 1.4; color: #1e293b; display: block; }
+        .invoice-name { font-size: 17px; font-weight: 600; word-break: break-word; overflow-wrap: break-word; line-height: 1.4; color: #1e293b; display: block; cursor: pointer; transition: color 0.2s ease; }
+        .invoice-name:hover { color: var(--theme-color); }
         
         .btn-add { background: var(--theme-color); border: 2px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: background-color 0.6s ease; }
-        .dash-item { background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; transition: transform 0.3s; }
+        .dash-item { background: rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; transition: all 0.3s; }
         .timeline-month-header { position: sticky; top: -1px; z-index: 40; background: #f8fafc; padding: 15px 0; border-bottom: 2px dashed #cbd5e1; margin-bottom: 20px; }
 
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
@@ -91,24 +90,24 @@
 
     <nav class="app-gradient pt-16 pb-28 px-4">
         <div class="max-w-4xl mx-auto flex flex-col items-center relative z-20">
-            <h1 class="text-3xl md:text-5xl font-jakarta font-extrabold text-white mb-10 tracking-tight cursor-pointer">NHÀ  THUỐC</h1>
+            <h1 class="text-3xl md:text-5xl font-jakarta font-extrabold text-white mb-10 tracking-tight cursor-pointer">NHÀ THUỐC</h1>
             
             <div class="w-full max-w-xl bg-black/20 backdrop-blur-md p-2 rounded-[1.5rem] flex items-center border border-white/10 shadow-xl">
-                <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px] active">Tuệ Thiện</button>
-                <button id="tabHungThinh" onclick="togglePharmacy('NT Hưng Thịnh', 'HungThinh');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px]">Hưng Thịnh</button>
-                <button id="tabPhucAn" onclick="togglePharmacy('NT Phúc An', 'PhucAn');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px]">Phúc An</button>
+                <button id="tabTueThien" onclick="togglePharmacy('NT Tuệ Thiện', 'TueThien');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px] active">Tuệ Thiện <span class="text-[11px] opacity-60 ml-0.5 font-normal">[1]</span></button>
+                <button id="tabHungThinh" onclick="togglePharmacy('NT Hưng Thịnh', 'HungThinh');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px]">Hưng Thịnh <span class="text-[11px] opacity-60 ml-0.5 font-normal">[2]</span></button>
+                <button id="tabPhucAn" onclick="togglePharmacy('NT Phúc An', 'PhucAn');" class="tab-btn flex-1 py-4 uppercase rounded-[1.2rem] text-[15px]">Phúc An <span class="text-[11px] opacity-60 ml-0.5 font-normal">[3]</span></button>
             </div>
 
             <div class="w-full max-w-xl mt-10 grid grid-cols-3 gap-6 text-white text-center">
-                <div class="dash-item p-5">
+                <div class="dash-item p-5 cursor-pointer hover:bg-white/20 transform hover:-translate-y-1 hover:shadow-xl" onclick="showListModal('all')" title="Xem tất cả">
                     <p id="totalCount" class="text-4xl font-jakarta font-black text-white">0</p>
                     <p class="text-[12px] font-semibold uppercase opacity-90 mt-2 tracking-wider">Tổng HĐ 📦</p>
                 </div>
-                <div class="dash-item p-5">
+                <div class="dash-item p-5 cursor-pointer hover:bg-white/20 transform hover:-translate-y-1 hover:shadow-xl" onclick="showListModal('completed')" title="Xem hóa đơn đã xong">
                     <p id="completedCount" class="text-4xl font-jakarta font-black text-green-300">0</p>
                     <p class="text-[12px] font-semibold uppercase opacity-90 mt-2 tracking-wider">Đã Xong ✅</p>
                 </div>
-                <div class="dash-item p-5">
+                <div class="dash-item p-5 cursor-pointer hover:bg-white/20 transform hover:-translate-y-1 hover:shadow-xl" onclick="showListModal('pending')" title="Xem hóa đơn còn lại">
                     <p id="pendingCount" class="text-4xl font-jakarta font-black text-orange-200">0</p>
                     <p class="text-[12px] font-semibold uppercase opacity-90 mt-2 tracking-wider">Còn Lại ⏳</p>
                 </div>
@@ -120,7 +119,7 @@
         <div class="luxury-panel p-6 md:p-10 min-h-[500px]">
             <div class="flex flex-col md:flex-row gap-5 mb-10">
                 <div class="relative flex-1">
-                    <input type="text" id="mainSearch" oninput="applyFilters()" placeholder="Tìm kiếm nhà cung cấp..." class="w-full pl-14 pr-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:bg-white focus:border-slate-300 outline-none font-medium text-[16px] text-slate-800 shadow-inner transition-all">
+                    <input type="text" id="mainSearch" oninput="applyFilters()" placeholder="Tìm kiếm nhà cung cấp (Phím F)..." class="w-full pl-14 pr-6 py-4 rounded-[1.5rem] bg-slate-50 border-2 border-transparent focus:bg-white focus:border-slate-300 outline-none font-medium text-[16px] text-slate-800 shadow-inner transition-all">
                     <span class="absolute left-6 top-1/2 -translate-y-1/2 text-xl opacity-50">🔍</span>
                 </div>
                 <div class="flex bg-slate-50 p-2 rounded-[1.5rem] border border-slate-100 shadow-inner">
@@ -133,14 +132,31 @@
     </main>
 
     <div class="fixed bottom-10 right-10 flex flex-col gap-4 items-end z-[9000]">
-        <button onclick="cleanupCompleted();" class="w-14 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 active:rotate-12 transition-all text-xl" title="Dọn dẹp danh sách đã xong">🧹</button>
-        <button onclick="toggleBlacklistModal();" class="w-14 h-14 bg-zinc-900 border border-zinc-700 text-white rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all relative text-xl" title="Danh Sách Đen">
-            <span>📓</span>
-            <span id="blacklistBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-[11px] w-6 h-6 flex items-center justify-center rounded-full font-bold hidden">0</span>
-        </button>
-        <button onclick="exportUncompletedToExcel();" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all text-xl" title="Xuất Excel">📊</button>
-        <button onclick="toggleRecycleBinModal();" class="w-14 h-14 bg-white border border-slate-200 text-orange-500 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all text-xl" title="Thùng rác">🗑️</button>
-        <button onclick="openAddForm();" class="w-[72px] h-[72px] btn-add text-white rounded-[1.5rem] flex items-center justify-center hover:rotate-12 hover:scale-110 active:scale-90 transition-all shadow-2xl text-3xl">➕</button>
+        <div class="group relative flex items-center">
+            <span class="absolute right-full mr-4 px-3.5 py-2 bg-slate-800 text-white text-[13px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0 whitespace-nowrap pointer-events-none shadow-xl">Dọn dẹp đã xong <span class="text-yellow-300 ml-1">(Ctrl+X)</span></span>
+            <button onclick="cleanupCompleted();" class="w-14 h-14 bg-white border border-slate-200 text-slate-600 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 active:rotate-12 transition-all text-xl">🧹</button>
+        </div>
+        <div class="group relative flex items-center">
+            <span class="absolute right-full mr-4 px-3.5 py-2 bg-zinc-900 text-white text-[13px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0 whitespace-nowrap pointer-events-none shadow-xl">Danh sách đen</span>
+            <button onclick="toggleBlacklistModal();" class="w-14 h-14 bg-zinc-900 border border-zinc-700 text-white rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all relative text-xl">
+                <span>🚫</span>
+                <span id="blacklistBadge" class="absolute -top-2 -right-2 bg-red-600 text-white text-[11px] w-6 h-6 flex items-center justify-center rounded-full font-bold hidden">0</span>
+            </button>
+        </div>
+        <div class="group relative flex items-center">
+            <span class="absolute right-full mr-4 px-3.5 py-2 bg-green-600 text-white text-[13px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0 whitespace-nowrap pointer-events-none shadow-xl">Xuất file Excel <span class="text-yellow-300 ml-1">(Ctrl+D)</span></span>
+            <button onclick="exportUncompletedToExcel();" class="w-14 h-14 bg-white border border-slate-200 text-emerald-600 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all text-xl">
+                <img src="https://img.icons8.com/color/48/microsoft-excel-2019--v1.png" alt="Excel Icon" class="w-7 h-7">
+            </button>
+        </div>
+        <div class="group relative flex items-center">
+            <span class="absolute right-full mr-4 px-3.5 py-2 bg-orange-500 text-white text-[13px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0 whitespace-nowrap pointer-events-none shadow-xl">Thùng rác</span>
+            <button onclick="toggleRecycleBinModal();" class="w-14 h-14 bg-white border border-slate-200 text-orange-500 rounded-2xl shadow-lg flex items-center justify-center hover:scale-110 transition-all text-xl">🗑️</button>
+        </div>
+        <div class="group relative flex items-center mt-2">
+            <span class="absolute right-full mr-4 px-3.5 py-2 text-white text-[13px] font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-all transform translate-x-4 group-hover:translate-x-0 whitespace-nowrap pointer-events-none shadow-xl" style="background-color: var(--theme-color);">Thêm hóa đơn <span class="text-yellow-300 ml-1">(F2)</span></span>
+            <button onclick="openAddForm();" class="w-[72px] h-[72px] btn-add text-white rounded-[1.5rem] flex items-center justify-center hover:rotate-12 hover:scale-110 active:scale-90 transition-all shadow-2xl text-3xl">➕</button>
+        </div>
     </div>
 
     <div id="alertModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[20000] hidden items-center justify-center p-4">
@@ -151,17 +167,27 @@
                 <p class="text-slate-600 text-[15px] font-medium mt-2 mb-6">Bạn có các hóa đơn chưa hoàn thành từ 3 ngày trước!</p>
             </div>
             <div id="alertList" class="max-h-[300px] overflow-y-auto space-y-3 mb-8 px-2 custom-scrollbar"></div>
-            <button onclick="document.getElementById('alertModal').classList.replace('flex', 'hidden')" class="w-full py-4 bg-amber-500 text-white font-bold rounded-xl shadow-lg hover:bg-amber-600 transition-all text-[15px]">Đã Hiểu</button>
+            <button onclick="document.getElementById('alertModal').classList.replace('flex', 'hidden')" class="w-full py-4 bg-amber-500 text-white font-bold rounded-xl shadow-lg hover:bg-amber-600 transition-all text-[15px]">Đã Hiểu (ESC)</button>
         </div>
     </div>
 
     <div id="blacklistModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="toggleBlacklistModal(event)">
         <div class="modal-content bg-zinc-900 w-full max-w-lg rounded-[2rem] p-8 max-h-[80vh] flex flex-col shadow-2xl border border-zinc-700" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-6 text-white">
-                <h3 class="text-2xl font-jakarta font-bold flex items-center gap-2">Danh Sách Đen 📓</h3>
-                <button onclick="toggleBlacklistModal()" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full text-white hover:bg-red-600 transition-colors text-xl">✕</button>
+                <h3 class="text-2xl font-jakarta font-bold flex items-center gap-2">Danh Sách Đen 🚫</h3>
+                <button onclick="toggleBlacklistModal()" class="w-10 h-10 flex items-center justify-center bg-zinc-800 rounded-full text-white hover:bg-red-600 transition-colors text-xl" title="Đóng (ESC)">✕</button>
             </div>
             <div id="blacklistDisplay" class="flex-1 overflow-y-auto space-y-3 px-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <div id="listModal" class="fixed inset-0 bg-black/60 backdrop-blur-lg z-[10000] hidden items-center justify-center p-4 transition-opacity" onclick="closeListModal(event)">
+        <div class="modal-content bg-white w-full max-w-2xl rounded-[2rem] p-8 max-h-[85vh] flex flex-col shadow-2xl border-t-[10px]" style="border-top-color: var(--theme-color);" onclick="event.stopPropagation()">
+            <div class="flex justify-between items-center mb-6">
+                <h3 id="listModalTitle" class="text-2xl font-jakarta font-bold text-slate-800 uppercase" style="color: var(--theme-color);">Danh sách</h3>
+                <button onclick="document.getElementById('listModal').classList.replace('flex', 'hidden')" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors text-xl" title="Đóng (ESC)">✕</button>
+            </div>
+            <div id="listDisplay" class="flex-1 overflow-y-auto space-y-3 px-1 custom-scrollbar"></div>
         </div>
     </div>
 
@@ -187,7 +213,7 @@
                     <textarea id="formNote" rows="2" placeholder="Ghi chú thêm..." class="w-full p-4 rounded-xl bg-slate-50 border-2 border-slate-100 focus:bg-white focus:border-blue-400 outline-none font-medium text-[15px] text-slate-700 transition-colors"></textarea>
                 </div>
                 <div class="flex gap-3 pt-4">
-                    <button onclick="closeModal()" class="flex-1 py-3.5 font-bold text-slate-500 text-[14px] hover:bg-slate-100 rounded-xl transition-colors">Hủy Bỏ</button>
+                    <button onclick="closeModal()" class="flex-1 py-3.5 font-bold text-slate-500 text-[14px] hover:bg-slate-100 rounded-xl transition-colors">Hủy Bỏ (ESC)</button>
                     <button onclick="handleSave()" class="flex-[2] py-3.5 text-white font-bold rounded-xl shadow-lg text-[14px] hover:shadow-xl active:scale-95 transition-all" style="background-color: var(--theme-color);">Lưu Dữ Liệu</button>
                 </div>
             </div>
@@ -198,7 +224,7 @@
         <div class="modal-content bg-white w-full max-w-lg rounded-[2rem] p-8 max-h-[80vh] flex flex-col shadow-2xl" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-6">
                 <h3 class="text-2xl font-jakarta font-bold text-slate-800">Thùng Rác 🗑️</h3>
-                <button onclick="toggleRecycleBinModal()" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors text-xl">✕</button>
+                <button onclick="toggleRecycleBinModal()" class="w-10 h-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors text-xl" title="Đóng (ESC)">✕</button>
             </div>
             <div id="recycleDisplay" class="flex-1 overflow-y-auto space-y-3 px-1 custom-scrollbar"></div>
         </div>
@@ -238,7 +264,7 @@
             const item = allInvoices.find(i => i.id === id);
             if(confirm(item.everBlacklisted ? "Gỡ khỏi Danh Sách Đen?" : "Đưa vào Danh Sách Đen?")) { 
                 await db.collection(COLL).doc(id).update({ everBlacklisted: !item.everBlacklisted }); 
-                showToast("Đã cập nhật Danh Sách Đen! 📓"); 
+                showToast("Đã cập nhật Danh Sách Đen! 🚫"); 
             } 
         }
 
@@ -348,7 +374,7 @@
             
             const monthGroups = data.reduce((acc, item) => {
                 const d = new Date(item.date);
-                const key = `Tháng ${d.getMonth() + 1} năm ${d.getFullYear()}`;
+                const key = `${d.getMonth() + 1}-${d.getFullYear()}`;
                 if (!acc[key]) acc[key] = [];
                 acc[key].push(item);
                 return acc;
@@ -377,15 +403,61 @@
                         html += `<div class="link-batch-box"><div class="flex items-center justify-between mb-5 pb-3 border-b border-slate-100"><div class="flex items-center gap-2"><span class="text-xl">${isNoLink ? '📦' : '📂'}</span><span class="text-[12px] font-bold uppercase tracking-widest ${isNoLink ? 'text-slate-500' : 'text-blue-600'}">${isNoLink ? 'Hóa đơn lẻ' : 'DANH SÁCH '} <span class="ml-2 bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full text-[11px]">Hóa đơn: ${cCount}/${items.length}</span></span></div>${!isNoLink ? `<a href="${linkKey}" target="_blank" class="btn-luxury-view shadow-sm">Xem Hóa Đơn ↗</a>` : ''}</div><div class="space-y-3">`;
                         
                         items.forEach(item => {
-                            // Chỉnh sửa hiển thị Ghi chú cho to và rõ hơn
                             const noteHtml = item.note ? `<p class="text-[14px] text-slate-600 font-medium mt-2 bg-slate-50 px-3.5 py-2.5 rounded-lg border border-slate-100 inline-block w-full"><span class="mr-1">📝</span>${item.note}</p>` : '';
 
-                            html += `<div class="invoice-card group ${item.everBlacklisted ? 'border-zinc-800 border-l-[6px]' : ''}"><div class="invoice-content-wrapper"><button onclick="db.collection(COLL).doc('${item.id}').update({completed: ${!item.completed}})" class="w-11 h-11 min-w-[44px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 text-lg ${item.completed ? 'bg-green-500 text-white border-green-500' : 'border-slate-300 text-slate-300 hover:border-slate-400'}">${item.completed ? '✓' : ''}</button><div class="invoice-text-section"><span class="invoice-name ${item.completed ? 'line-through opacity-40 text-slate-500' : ''}">${item.name}</span>${noteHtml}<p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-2.5">${item.pharmacy}</p></div><div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"><button onclick="addToBlacklist('${item.id}')" class="p-2.5 bg-zinc-100 text-zinc-600 rounded-xl hover:bg-zinc-800 hover:text-white transition-colors" title="Thêm vào danh sách đen">📓</button><button onclick="openEditForm('${item.id}')" class="p-2.5 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition-colors" title="Chỉnh sửa">✏️</button><button onclick="deleteOne('${item.id}')" class="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors" title="Xóa">🗑️</button></div></div></div>`;
+                            html += `<div class="invoice-card group ${item.everBlacklisted ? 'border-zinc-800 border-l-[6px]' : ''}"><div class="invoice-content-wrapper"><button onclick="db.collection(COLL).doc('${item.id}').update({completed: ${!item.completed}})" class="w-11 h-11 min-w-[44px] rounded-full border-2 flex items-center justify-center transition-all mt-0.5 text-lg ${item.completed ? 'bg-green-500 text-white border-green-500' : 'border-slate-300 text-slate-300 hover:border-slate-400'}">${item.completed ? '✓' : ''}</button><div class="invoice-text-section"><span onclick="openEditForm('${item.id}')" title="Nhấn để chỉnh sửa" class="invoice-name ${item.completed ? 'line-through opacity-40 text-slate-500 hover:text-slate-700' : ''}">${item.name}</span>${noteHtml}<p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide mt-2.5">${item.pharmacy}</p></div><div class="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"><button onclick="addToBlacklist('${item.id}')" class="p-2.5 bg-zinc-100 text-zinc-600 rounded-xl hover:bg-zinc-800 hover:text-white transition-colors" title="Thêm vào danh sách đen">🚫</button><button onclick="deleteOne('${item.id}')" class="p-2.5 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition-colors" title="Xóa">🗑️</button></div></div></div>`;
                         });
                         html += `</div></div>`;
                     }); html += `</div>`;
                 }); html += `</div>`;
             }); display.innerHTML = html;
+        }
+
+        // HÀM HIỂN THỊ DANH SÁCH THEO THỐNG KÊ
+        function showListModal(type) {
+            const m = document.getElementById('listModal');
+            const title = document.getElementById('listModalTitle');
+            const display = document.getElementById('listDisplay');
+
+            let data = allInvoices.filter(i => !i.isDeleted && i.pharmacy === currentPharmacy);
+
+            if (type === 'completed') {
+                data = data.filter(i => i.completed);
+                title.innerText = `Đã Xong - ${currentPharmacy}`;
+            } else if (type === 'pending') {
+                data = data.filter(i => !i.completed);
+                title.innerText = `Còn Lại - ${currentPharmacy}`;
+            } else {
+                title.innerText = `Tổng Hóa Đơn - ${currentPharmacy}`;
+            }
+
+            if (!data.length) {
+                display.innerHTML = '<p class="text-center py-10 text-slate-500 font-medium">Trống ✨</p>';
+            } else {
+                display.innerHTML = data.map(item => `
+                    <div class="flex flex-col p-4 bg-slate-50 border border-slate-100 rounded-xl mb-3 hover:shadow-md transition-shadow ${item.completed ? 'opacity-70' : ''}">
+                        <div class="flex items-center justify-between">
+                            <span class="font-semibold text-slate-800 text-[16px] ${item.completed ? 'line-through' : ''}">${item.name}</span>
+                            <span class="text-[11px] font-bold ${item.completed ? 'text-green-600 bg-green-100' : 'text-orange-600 bg-orange-100'} px-2.5 py-1 rounded-md">
+                                ${item.completed ? '✓ Đã xong' : '⏳ Còn lại'}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-4 mt-2.5">
+                            <span class="text-[13px] font-medium text-slate-500 flex items-center gap-1">📅 ${item.date}</span>
+                            ${item.link ? `<a href="${item.link}" target="_blank" class="text-[13px] text-blue-600 hover:underline font-bold">🔗 Xem File</a>` : ''}
+                        </div>
+                        ${item.note ? `<div class="mt-3 text-[14px] text-slate-600 bg-white px-3.5 py-2.5 rounded-lg border border-slate-200"><span class="mr-1">📝</span>${item.note}</div>` : ''}
+                    </div>
+                `).join('');
+            }
+
+            m.classList.replace('hidden', 'flex');
+        }
+
+        function closeListModal(e) {
+            if (e.target.id === 'listModal') {
+                document.getElementById('listModal').classList.replace('flex', 'hidden');
+            }
         }
 
         async function cleanupCompleted() { 
@@ -501,6 +573,48 @@
             XLSX.writeFile(wb, `HOA_DON_TONG_HOP_2026.xlsx`);
             showToast("Đã xuất file tổng hợp! 📊");
         }
+
+        // HỆ THỐNG PHÍM TẮT (HOTKEYS) VỚI NÚT ESC
+        document.addEventListener('keydown', function(e) {
+            const isTyping = ['INPUT', 'TEXTAREA'].includes(e.target.tagName);
+
+            // ESC: Đóng tất cả các Modal và Unfocus
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                // Đóng các Modal
+                document.getElementById('modalOverlay').classList.replace('flex', 'hidden');
+                document.getElementById('blacklistModal').classList.replace('flex', 'hidden');
+                document.getElementById('recycleModal').classList.replace('flex', 'hidden');
+                document.getElementById('alertModal').classList.replace('flex', 'hidden');
+                document.getElementById('listModal').classList.replace('flex', 'hidden'); // Đóng Modal mới
+                
+                // Thoát khỏi mọi ô input đang nhập
+                if (document.activeElement) {
+                    document.activeElement.blur();
+                }
+                return;
+            }
+
+            if (e.key === 'F2') { e.preventDefault(); openAddForm(); return; }
+
+            if (e.ctrlKey && e.key.toLowerCase() === 'd') {
+                e.preventDefault(); exportUncompletedToExcel(); return;
+            }
+
+            if (e.ctrlKey && e.key.toLowerCase() === 'x') {
+                if (!isTyping) { e.preventDefault(); cleanupCompleted(); return; }
+            }
+
+            if (!isTyping && e.key.toLowerCase() === 'f') {
+                e.preventDefault(); document.getElementById('mainSearch').focus(); return;
+            }
+
+            if (!isTyping && !e.ctrlKey && !e.altKey && !e.metaKey) {
+                if (e.key === '1') { e.preventDefault(); togglePharmacy('NT Tuệ Thiện', 'TueThien'); } 
+                else if (e.key === '2') { e.preventDefault(); togglePharmacy('NT Hưng Thịnh', 'HungThinh'); } 
+                else if (e.key === '3') { e.preventDefault(); togglePharmacy('NT Phúc An', 'PhucAn'); }
+            }
+        });
 
         window.onload = () => { 
             setTimeout(() => { document.getElementById('loadingIndicator').classList.add('hidden'); loadData(); }, 1000); 
